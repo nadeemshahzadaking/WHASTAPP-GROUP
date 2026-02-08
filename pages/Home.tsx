@@ -1,16 +1,15 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
-import { COUNTRIES, MOCK_GROUPS } from '../constants';
-import { containsBannedWords } from '../utils/wordFilter';
 import SafetyModal from '../components/SafetyModal';
 import GroupCard from '../components/GroupCard';
 import AdSlot from '../components/AdSlot';
+import { containsBannedWords } from '../utils/wordFilter';
+import { MOCK_GROUPS } from '../constants';
 
 const Home: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [country, setCountry] = useState('All');
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   
   const navigate = useNavigate();
@@ -23,8 +22,7 @@ const Home: React.FC = () => {
       setIsSafetyOpen(true);
       return;
     }
-    let url = `/groups?q=${encodeURIComponent(search)}`;
-    if (country !== 'All') url += `&country=${country}`;
+    const url = `/groups?q=${encodeURIComponent(search)}`;
     navigate(url);
   };
 
@@ -50,7 +48,6 @@ const Home: React.FC = () => {
       
       {/* Hero Section */}
       <section className="bg-white py-12 md:py-24 px-4 border-b border-slate-50 relative overflow-hidden">
-        {/* Background Accent */}
         <div className="absolute top-0 right-0 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-50 -mr-48 -mt-48"></div>
         
         <div className="max-w-4xl mx-auto text-center relative z-10">
@@ -61,25 +58,14 @@ const Home: React.FC = () => {
             {t.subtitle}
           </p>
 
-          <form onSubmit={handleSearchSubmit} className="max-w-3xl mx-auto mb-10">
-            <div className={`flex flex-col md:flex-row gap-2 bg-white rounded-3xl p-2 border-2 border-slate-100 shadow-2xl overflow-hidden ${t.dir === 'rtl' ? 'md:flex-row-reverse' : ''}`}>
-               <select
-                 value={country}
-                 onChange={(e) => setCountry(e.target.value)}
-                 className="bg-slate-50 px-4 py-3 rounded-2xl outline-none font-bold text-slate-700 min-w-[150px] cursor-pointer hover:bg-slate-100 transition-colors"
-               >
-                 <option value="All">🌍 {t.allCountries}</option>
-                 {COUNTRIES.map(c => (
-                    <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
-                 ))}
-               </select>
-
+          <form onSubmit={handleSearchSubmit} className="max-w-2xl mx-auto mb-10">
+            <div className={`flex flex-col md:flex-row gap-2 bg-white rounded-3xl p-2 border-2 border-slate-100 shadow-2xl overflow-hidden`}>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t.searchPlaceholder}
-                className={`flex-1 px-6 py-4 rounded-2xl outline-none text-lg transition-all ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
+                className={`flex-1 px-6 py-4 rounded-2xl outline-none text-lg transition-all`}
               />
               <button
                 type="submit"
@@ -90,7 +76,7 @@ const Home: React.FC = () => {
             </div>
           </form>
 
-          <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center ${t.dir === 'rtl' ? 'sm:flex-row-reverse' : ''}`}>
+          <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center`}>
             <button
               onClick={() => navigate('/groups')}
               className="w-full sm:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-200"
@@ -129,30 +115,27 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Groups List Ad */}
       <div className="max-w-7xl mx-auto w-full px-4">
-         {/* Fix: Changed position from 'middle' to 'sidebarAd' to satisfy AdSlotProps type constraint */}
          <AdSlot position="sidebarAd" />
       </div>
 
-      {/* Featured Categories Preview */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 space-y-20">
           {featured.slice(0, 4).map((cat) => (
             <div key={cat} className="scroll-mt-20">
-              <div className={`flex items-center justify-between mb-8 pb-4 border-b border-slate-100 ${t.dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
-                <div className={`flex items-center gap-4 ${t.dir === 'rtl' ? 'flex-row-reverse text-right' : 'text-left'}`}>
+              <div className={`flex items-center justify-between mb-8 pb-4 border-b border-slate-100`}>
+                <div className={`flex items-center gap-4`}>
                   <span className="text-3xl bg-slate-50 p-3 rounded-2xl">{getEmoji(cat)}</span>
                   <div>
                     <h2 className="text-2xl font-black text-slate-900">{t.categories[cat]}</h2>
-                    <p className="text-xs text-slate-400 font-bold uppercase">{t.dir === 'rtl' ? 'تازہ ترین گروپس' : 'Latest Groups'}</p>
+                    <p className="text-xs text-slate-400 font-bold uppercase">Latest Groups</p>
                   </div>
                 </div>
                 <button
                   onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)}
                   className="bg-slate-100 text-slate-600 px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all"
                 >
-                  {t.dir === 'rtl' ? 'سب دیکھیں' : 'View All'}
+                  View All
                 </button>
               </div>
 
@@ -166,9 +149,7 @@ const Home: React.FC = () => {
         </div>
       </section>
       
-      {/* Footer Ad */}
       <div className="max-w-7xl mx-auto w-full px-4 mb-10">
-         {/* Fix: Changed position from 'footer' to 'footerAd' to satisfy AdSlotProps type constraint */}
          <AdSlot position="footerAd" />
       </div>
     </div>

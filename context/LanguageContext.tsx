@@ -4,7 +4,7 @@ import { Language, Translations } from '../types';
 import { TRANSLATIONS } from '../translations';
 
 interface LanguageContextType {
-  language: Language | null;
+  language: Language;
   setLanguage: (lang: Language) => void;
   hasAgreedTerms: boolean;
   setAgreedTerms: (agreed: boolean) => void;
@@ -17,53 +17,28 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language | null>(() => {
-    const stored = localStorage.getItem('preferred_lang') as Language;
-    if (stored) return stored;
-    return 'en'; // Changed default to English
-  });
+  const [language] = useState<Language>('en');
 
-  const [hasAgreedTerms, setHasAgreedTermsState] = useState<boolean>(() => {
-    return localStorage.getItem('agreed_terms') === 'true';
-  });
+  // Terms agreement is now implicitly true as per user request
+  const [hasAgreedTerms, setHasAgreedTermsState] = useState<boolean>(true);
 
   const [showSelector, setShowSelector] = useState(false);
-  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
-  const setLanguage = (lang: Language) => {
-    setLanguageState(lang);
-    localStorage.setItem('preferred_lang', lang);
-  };
-
-  const setAgreedTerms = (agreed: boolean) => {
-    setHasAgreedTermsState(agreed);
-    localStorage.setItem('agreed_terms', agreed ? 'true' : 'false');
-    if (agreed && pendingAction) {
-      pendingAction();
-      setPendingAction(null);
-    }
-    setShowSelector(false);
-  };
+  const setLanguage = (_lang: Language) => {};
+  const setAgreedTerms = (_agreed: boolean) => {};
 
   const requestAction = (action: () => void) => {
-    if (hasAgreedTerms) {
-      action();
-    } else {
-      setPendingAction(() => action);
-      setShowSelector(true);
-    }
+    // Execute action immediately without showing terms modal
+    action();
   };
 
   useEffect(() => {
-    if (language) {
-      const currentT = TRANSLATIONS[language];
-      document.documentElement.setAttribute('dir', currentT.dir);
-      document.documentElement.setAttribute('lang', language);
-      document.title = currentT.title;
-    }
-  }, [language]);
+    document.documentElement.setAttribute('dir', 'ltr');
+    document.documentElement.setAttribute('lang', 'en');
+    document.title = TRANSLATIONS.en.title;
+  }, []);
 
-  const t = language ? TRANSLATIONS[language] : TRANSLATIONS['en'];
+  const t = TRANSLATIONS.en;
 
   return (
     <LanguageContext.Provider value={{ 

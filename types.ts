@@ -1,5 +1,5 @@
 
-export type Language = 'en' | 'ur' | 'roman' | 'ar';
+export type Language = 'en';
 export type Category = 
   | 'Education' | 'Jobs' | 'Business' | 'Islamic' | 'Entertainment' 
   | 'News' | 'Sports' | 'Tech' | 'Health' | 'Food' 
@@ -22,13 +22,6 @@ export type Category =
   | 'Cyber Security' | 'Digital Marketing' | 'SEO Services' | 'Stock Market'
   | 'Poetry & Ghazals' | 'Motivational' | 'Art & Craft' | 'Pets & Animals';
 
-export interface Country {
-  name: string;
-  code: string;
-  dial: string;
-  flag: string;
-}
-
 export interface WhatsAppGroup {
   id: string;
   name: string;
@@ -36,7 +29,6 @@ export interface WhatsAppGroup {
   category: Category;
   description: string;
   addedAt: string;
-  countryCode: string;
   clicks: number;
 }
 
@@ -64,7 +56,6 @@ export interface Translations {
   groupName: string;
   groupLink: string;
   selectCategory: string;
-  selectCountry: string;
   descriptionLabel: string;
   submitBtn: string;
   successTitle: string;
@@ -73,18 +64,11 @@ export interface Translations {
   footerLine2: string;
   backBtn: string;
   clicksLabel: string;
-  allCountries: string;
   linkError: string;
-  searchCountryPlaceholder: string;
   safetyTitle: string;
   safetyMessage: string;
   closeBtn: string;
   voicePrompt: string;
-  termsTitle: string;
-  termsIntro: string;
-  termsList: string[];
-  agreeBtn: string;
-  viewTerms: string;
   promoPageTitle: string;
   promoPageSub: string;
   promoContactHeader: string;

@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { WhatsAppGroup } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { COUNTRIES } from '../constants';
 import AdInterstitial from './AdInterstitial';
 
 interface GroupCardProps {
@@ -13,8 +12,6 @@ const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
   const { t, requestAction } = useLanguage();
   const [showAd, setShowAd] = useState(false);
   
-  const country = COUNTRIES.find(c => c.code === group.countryCode);
-
   const getCategoryColor = (cat: string) => {
     switch (cat) {
       case 'Education': return 'bg-blue-100 text-blue-800';
@@ -48,13 +45,10 @@ const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
         onComplete={completeJoin} 
       />
       
-      <div className={`flex justify-between items-start mb-4 ${t.dir === 'rtl' ? 'flex-row-reverse' : 'flex-row'}`}>
+      <div className={`flex justify-between items-start mb-4`}>
         <div className="flex flex-col">
-           <div className={`flex items-center gap-2 ${t.dir === 'rtl' ? 'flex-row-reverse' : 'flex-row'}`}>
-             <span className="text-xl" title={country?.name}>{country?.flag || '🌐'}</span>
-             <h3 className="text-xl font-bold text-slate-800 leading-tight">{group.name}</h3>
-           </div>
-           <div className={`mt-1 flex items-center gap-2 text-xs font-medium text-slate-400 ${t.dir === 'rtl' ? 'flex-row-reverse' : ''}`}>
+           <h3 className="text-xl font-bold text-slate-800 leading-tight">{group.name}</h3>
+           <div className={`mt-1 flex items-center gap-2 text-xs font-medium text-slate-400`}>
              <span>🖱️ {group.clicks.toLocaleString()} {t.clicksLabel}</span>
            </div>
         </div>
@@ -64,7 +58,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
       </div>
       
       <p className="text-slate-600 text-sm mb-6 flex-grow">
-        {group.description || (t.dir === 'rtl' ? 'اس گروپ کی کوئی تفصیل موجود نہیں ہے۔' : 'No description available for this group.')}
+        {group.description || 'No description available for this group.'}
       </p>
 
       <div className="flex items-center justify-between mt-auto">

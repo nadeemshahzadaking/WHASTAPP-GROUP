@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import SafetyModal from '../components/SafetyModal';
 import GroupCard from '../components/GroupCard';
-import AdSlot from '../components/AdSlot';
 import { WhatsAppGroup } from '../types';
 
 const Home: React.FC = () => {
@@ -17,13 +16,21 @@ const Home: React.FC = () => {
   const { t, requestAction } = useLanguage();
 
   useEffect(() => {
-    fetch('/api/get-groups')
+    // Adding timestamp to frontend fetch as well to bypass browser cache
+    fetch(`/api/get-groups?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setGroups(data);
+        if (Array.isArray(data)) {
+            // Sort by latest added
+            const sorted = [...data].reverse();
+            setGroups(sorted);
+        }
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("Home fetch error:", err);
+        setLoading(false);
+      });
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -106,28 +113,35 @@ const Home: React.FC = () => {
             <div className="flex justify-center py-20">
               <div className="w-10 h-10 border-4 border-green-200 border-t-[#25D366] rounded-full animate-spin"></div>
             </div>
+          ) : groups.length === 0 ? (
+            <div className="text-center py-10 opacity-50">No groups found in the sheet.</div>
           ) : (
-            featured.slice(0, 4).map((cat) => (
-              <div key={cat} className="scroll-mt-20">
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
-                  <div className="flex items-center gap-4">
-                    <span className="text-3xl bg-slate-50 p-3 rounded-2xl">{getEmoji(cat)}</span>
-                    <div>
-                      <h2 className="text-2xl font-black text-slate-900">{t.categories[cat]}</h2>
-                      <p className="text-xs text-slate-400 font-bold uppercase">Latest Groups</p>
+            featured.slice(0, 4).map((cat) => {
+              const categoryGroups = groups.filter(g => g.category === cat).slice(0, 3);
+              if (categoryGroups.length === 0) return null;
+              
+              return (
+                <div key={cat} className="scroll-mt-20">
+                  <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl bg-slate-50 p-3 rounded-2xl">{getEmoji(cat)}</span>
+                      <div>
+                        <h2 className="text-2xl font-black text-slate-900">{t.categories[cat]}</h2>
+                        <p className="text-xs text-slate-400 font-bold uppercase">Latest Groups</p>
+                      </div>
                     </div>
+                    <button onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)} className="bg-slate-100 text-slate-600 px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-200">
+                      View All
+                    </button>
                   </div>
-                  <button onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)} className="bg-slate-100 text-slate-600 px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-200">
-                    View All
-                  </button>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categoryGroups.map(group => (
+                      <GroupCard key={group.id} group={group} />
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groups.filter(g => g.category === cat).slice(0, 3).map(group => (
-                    <GroupCard key={group.id} group={group} />
-                  ))}
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </section>

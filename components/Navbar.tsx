@@ -48,12 +48,26 @@ const Navbar: React.FC = () => {
                   <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-600 rounded-full"></span>
                   {t.promoLink}
                 </Link>
+                
+                {/* Desktop Official Link Button */}
+                <Link 
+                  to="/official" 
+                  className="flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-blue-600 hover:text-white transition-all border border-blue-100 shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5l-1.89 3.2-3.61.82.34 3.69L1 12l2.44 2.79-.34 3.69 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/>
+                  </svg>
+                  <span>OFFICIAL</span>
+                </Link>
             </div>
           </div>
 
           <div className="md:hidden flex items-center gap-3">
-             <Link to="/official" className="p-3 bg-green-100 text-green-600 rounded-2xl shadow-sm active:scale-95">
-                🔗
+             <Link to="/official" className="flex items-center gap-1.5 bg-blue-50 text-blue-600 px-3 py-2 rounded-xl border border-blue-100 font-black text-[10px] tracking-tighter uppercase active:scale-95 shadow-sm">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5l-1.89 3.2-3.61.82.34 3.69L1 12l2.44 2.79-.34 3.69 3.61.82 1.89 3.2L12 21.04l3.4 1.46 1.89-3.2 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/>
+                </svg>
+                <span>OFFICIAL</span>
              </Link>
           </div>
         </div>

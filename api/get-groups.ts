@@ -1,47 +1,55 @@
 
 export default async function handler(req: any, res: any) {
-  const sheetUrl = process.env.SHEET_URL;
+  const sheetUrl = process.env.SHEET_URL?.trim();
 
   if (!sheetUrl) {
     return res.status(500).json({ 
-      error: 'SHEET_URL is missing in Vercel settings.',
-      help: 'Go to Vercel Dashboard > Settings > Environment Variables and add SHEET_URL.' 
+      error: 'CONFIG_ERROR',
+      message: 'SHEET_URL is missing in environment variables.' 
     });
   }
 
   try {
-    // Add a unique timestamp to prevent caching from Google's side
-    const cacheBuster = `?t=${Date.now()}`;
-    const targetUrl = sheetUrl.includes('?') ? `${sheetUrl}&t=${Date.now()}` : `${sheetUrl}${cacheBuster}`;
+    // Robust URL construction
+    const url = new URL(sheetUrl);
+    url.searchParams.set('t', Date.now().toString());
 
-    const response = await fetch(targetUrl, { 
+    const response = await fetch(url.toString(), { 
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
+        'Cache-Control': 'no-cache'
+      },
+      redirect: 'follow'
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      return res.status(response.status).json({ 
-        error: 'Google Sheets API error', 
-        details: text 
+    const responseText = await response.text();
+    const cleanText = responseText.trim();
+
+    // Check if Google returned a 404 or other error page
+    if (!response.ok || response.status === 404 || cleanText.includes("404") || cleanText.includes("File not found")) {
+      return res.status(response.status === 200 ? 404 : response.status).json({
+        error: 'SOURCE_NOT_FOUND',
+        message: 'Google Script URL returned a 404 or Error Page. Check if the script is Deployed as Web App and set to "Anyone".',
+        debug: cleanText.substring(0, 100)
       });
     }
 
-    const data = await response.json();
-    
-    // Ensure data is an array
-    const groups = Array.isArray(data) ? data : (data.data || []);
-    
-    return res.status(200).json(groups);
+    try {
+      const data = JSON.parse(cleanText);
+      const groups = Array.isArray(data) ? data : (data.data || data.rows || []);
+      return res.status(200).json(groups);
+    } catch (parseError) {
+      return res.status(502).json({ 
+        error: 'PARSE_ERROR', 
+        message: 'Data source returned invalid JSON.',
+        raw: cleanText.substring(0, 50)
+      });
+    }
   } catch (error: any) {
-    console.error('Fetch Error:', error);
     return res.status(500).json({ 
-      error: 'Failed to connect to Google Sheets', 
-      details: error.message 
+      error: 'NETWORK_ERROR', 
+      message: error.message 
     });
   }
 }

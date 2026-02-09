@@ -10,25 +10,47 @@ const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [groups, setGroups] = useState<WhatsAppGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<{title: string, msg: string} | null>(null);
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   
   const navigate = useNavigate();
   const { t, requestAction } = useLanguage();
 
   useEffect(() => {
-    // Adding timestamp to frontend fetch as well to bypass browser cache
+    setLoading(true);
+    setError(null);
+
     fetch(`/api/get-groups?t=${Date.now()}`)
-      .then(res => res.json())
+      .then(async res => {
+        const text = await res.text();
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!res.ok || !contentType.includes("application/json") || text.includes("404")) {
+          console.error("Fetch Error:", text);
+          throw new Error(res.status === 404 ? "Source Not Found (404)" : "Invalid Data Source");
+        }
+
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error("Invalid Data Format");
+        }
+      })
       .then(data => {
         if (Array.isArray(data)) {
-            // Sort by latest added
-            const sorted = [...data].reverse();
-            setGroups(sorted);
+            setGroups([...data].reverse());
+        } else {
+            setGroups([]);
         }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Home fetch error:", err);
+        setError({
+          title: "Connection Issue",
+          msg: err.message.includes("404") 
+            ? "The Google Script URL is returning a 404. Please check your SHEET_URL configuration." 
+            : "Could not load groups. Please check your internet or configuration."
+        });
         setLoading(false);
       });
   }, []);
@@ -61,10 +83,10 @@ const Home: React.FC = () => {
       <section className="bg-white py-12 md:py-24 px-4 border-b border-slate-50 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-50 -mr-48 -mt-48"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 tracking-tighter">
+          <h1 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 tracking-tighter text-start md:text-center">
             {t.title.split(' ')[0]} <span className="whatsapp-green-text">{t.title.split(' ').slice(1).join(' ')}</span>
           </h1>
-          <p className="text-xl text-slate-500 mb-12 font-medium max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-slate-500 mb-12 font-medium max-w-2xl mx-auto leading-relaxed text-start md:text-center">
             {t.subtitle}
           </p>
 
@@ -113,8 +135,20 @@ const Home: React.FC = () => {
             <div className="flex justify-center py-20">
               <div className="w-10 h-10 border-4 border-green-200 border-t-[#25D366] rounded-full animate-spin"></div>
             </div>
+          ) : error ? (
+            <div className="text-center py-20 bg-red-50 rounded-[3rem] border border-red-100 px-6">
+              <div className="text-5xl mb-4">⚠️</div>
+              <h3 className="text-2xl font-black text-red-900 mb-2">{error.title}</h3>
+              <p className="text-red-700 font-medium max-w-md mx-auto mb-6">{error.msg}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all"
+              >
+                Try Again
+              </button>
+            </div>
           ) : groups.length === 0 ? (
-            <div className="text-center py-10 opacity-50">No groups found in the sheet.</div>
+            <div className="text-center py-10 opacity-50 font-bold">No groups found.</div>
           ) : (
             featured.slice(0, 4).map((cat) => {
               const categoryGroups = groups.filter(g => g.category === cat).slice(0, 3);
@@ -125,7 +159,7 @@ const Home: React.FC = () => {
                   <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
                     <div className="flex items-center gap-4">
                       <span className="text-3xl bg-slate-50 p-3 rounded-2xl">{getEmoji(cat)}</span>
-                      <div>
+                      <div className="text-start">
                         <h2 className="text-2xl font-black text-slate-900">{t.categories[cat]}</h2>
                         <p className="text-xs text-slate-400 font-bold uppercase">Latest Groups</p>
                       </div>

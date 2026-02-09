@@ -9,6 +9,9 @@ import AddGroup from './pages/AddGroup';
 import Promotion from './pages/Promotion';
 import About from './pages/About';
 import OfficialLinks from './pages/OfficialLinks';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import SecurityCheck from './pages/SecurityCheck';
 import LanguageSelector from './components/LanguageSelector';
 import FloatingBackButton from './components/FloatingBackButton';
 import ProductPromoBox from './components/ProductPromoBox';
@@ -38,6 +41,9 @@ const AppContent: React.FC = () => {
           <Route path="/promotion" element={<Promotion />} />
           <Route path="/about" element={<About />} />
           <Route path="/official" element={<OfficialLinks />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/security-check" element={<SecurityCheck />} />
         </Routes>
       </main>
 

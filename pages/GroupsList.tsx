@@ -13,6 +13,7 @@ const GroupsList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [groups, setGroups] = useState<WhatsAppGroup[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   
   const query = searchParams.get('q') || '';
@@ -21,20 +22,34 @@ const GroupsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(query);
 
   useEffect(() => {
-    fetch('/api/get-groups')
-      .then(res => res.json())
+    setLoading(true);
+    fetch(`/api/get-groups?t=${Date.now()}`)
+      .then(async res => {
+        const text = await res.text();
+        if (!res.ok) throw new Error(text || "Server Error");
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error("Invalid response from server");
+        }
+      })
       .then(data => {
         if (Array.isArray(data)) setGroups(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
   }, []);
 
   const filteredGroups = useMemo(() => {
     return groups.filter(group => {
+      const name = group.name?.toLowerCase() || '';
+      const desc = group.description?.toLowerCase() || '';
       const matchesSearch = 
-        group.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        group.description.toLowerCase().includes(searchTerm.toLowerCase());
+        name.includes(searchTerm.toLowerCase()) || 
+        desc.includes(searchTerm.toLowerCase());
       const matchesCategory = catFilter === 'All' || group.category === catFilter;
       return matchesSearch && matchesCategory;
     });
@@ -45,7 +60,7 @@ const GroupsList: React.FC = () => {
       <SafetyModal isOpen={isSafetyOpen} onClose={() => setIsSafetyOpen(false)} />
       <BackButton />
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-        <div className="text-left">
+        <div className="text-start">
           <h1 className="text-3xl font-bold text-slate-900 mb-2">{t.groupsListTitle}</h1>
           <p className="text-slate-500">{filteredGroups.length} {t.groupsFound}</p>
         </div>
@@ -72,6 +87,11 @@ const GroupsList: React.FC = () => {
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-10 h-10 border-4 border-green-200 border-t-[#25D366] rounded-full animate-spin"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center py-20">
+          <div className="text-red-500 font-bold">Error loading groups</div>
+          <p className="text-slate-400 mt-2">{error}</p>
         </div>
       ) : filteredGroups.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

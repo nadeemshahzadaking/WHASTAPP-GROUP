@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import GroupsList from './pages/GroupsList';
@@ -12,17 +12,14 @@ import OfficialLinks from './pages/OfficialLinks';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import SecurityCheck from './pages/SecurityCheck';
-import LanguageSelector from './components/LanguageSelector';
 import FloatingBackButton from './components/FloatingBackButton';
 import ProductPromoBox from './components/ProductPromoBox';
 import AdSlot from './components/AdSlot';
 
 const AppContent: React.FC = () => {
-  const { t } = useLanguage();
-
   return (
     <div className="min-h-screen flex flex-col font-sans relative">
-      <LanguageSelector />
+      {/* Global LanguageSelector removed from here */}
       <Navbar />
       
       <div className="max-w-7xl mx-auto w-full px-4">
@@ -53,8 +50,8 @@ const AppContent: React.FC = () => {
 
       <footer className="bg-white border-t border-slate-200 py-12 text-center text-slate-500">
         <div className="max-w-7xl mx-auto px-4">
-          <p className="text-sm font-bold text-slate-400">{t.footerLine1}</p>
-          <p className="text-xs mt-2 opacity-60 font-medium">{t.footerLine2}</p>
+          <p className="text-sm font-bold text-slate-400">© 2024 WhatsApp Directory. Professional & Secure.</p>
+          <p className="text-xs mt-2 opacity-60 font-medium">This site is not affiliated with WhatsApp Inc.</p>
         </div>
       </footer>
     </div>

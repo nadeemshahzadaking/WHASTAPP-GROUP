@@ -32,8 +32,16 @@ const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
     });
   };
 
-  const completeJoin = () => {
+  const completeJoin = async () => {
     setShowAd(false);
+    
+    // Increment clicks in the background
+    fetch('/api/update-click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ link: group.link })
+    }).catch(err => console.error("Click update failed", err));
+
     window.open(group.link, '_blank', 'noopener,noreferrer');
   };
 
@@ -49,7 +57,7 @@ const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
         <div className="flex flex-col">
            <h3 className="text-xl font-bold text-slate-800 leading-tight">{group.name}</h3>
            <div className={`mt-1 flex items-center gap-2 text-xs font-medium text-slate-400`}>
-             <span>🖱️ {group.clicks.toLocaleString()} {t.clicksLabel}</span>
+             <span>🖱️ {(group.clicks || 0).toLocaleString()} {t.clicksLabel}</span>
            </div>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${getCategoryColor(group.category)}`}>

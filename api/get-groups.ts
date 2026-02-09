@@ -10,46 +10,35 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // Robust URL construction
-    const url = new URL(sheetUrl);
-    url.searchParams.set('t', Date.now().toString());
-
-    const response = await fetch(url.toString(), { 
+    const response = await fetch(sheetUrl, { 
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Cache-Control': 'no-cache'
-      },
+      headers: { 'Accept': 'application/json' },
       redirect: 'follow'
     });
 
-    const responseText = await response.text();
-    const cleanText = responseText.trim();
+    const cleanText = (await response.text()).trim();
 
-    // Check if Google returned a 404 or other error page
-    if (!response.ok || response.status === 404 || cleanText.includes("404") || cleanText.includes("File not found")) {
-      return res.status(response.status === 200 ? 404 : response.status).json({
-        error: 'SOURCE_NOT_FOUND',
-        message: 'Google Script URL returned a 404 or Error Page. Check if the script is Deployed as Web App and set to "Anyone".',
-        debug: cleanText.substring(0, 100)
-      });
+    if (!response.ok || cleanText.includes("404")) {
+      return res.status(404).json({ error: 'SOURCE_NOT_FOUND' });
     }
 
     try {
       const data = JSON.parse(cleanText);
-      const groups = Array.isArray(data) ? data : (data.data || data.rows || []);
+      // Map sheet headers (lowercase) back to component expectations
+      const groups = data.map((item: any) => ({
+        id: item.id || Math.random().toString(),
+        name: item.name || 'Untitled Group',
+        link: item.link || '',
+        category: item.category || 'Other',
+        description: item.description || '',
+        addedAt: item.addedat || new Date().toISOString(),
+        clicks: parseInt(item.clicks) || 0
+      }));
       return res.status(200).json(groups);
     } catch (parseError) {
-      return res.status(502).json({ 
-        error: 'PARSE_ERROR', 
-        message: 'Data source returned invalid JSON.',
-        raw: cleanText.substring(0, 50)
-      });
+      return res.status(502).json({ error: 'PARSE_ERROR', raw: cleanText.substring(0, 50) });
     }
   } catch (error: any) {
-    return res.status(500).json({ 
-      error: 'NETWORK_ERROR', 
-      message: error.message 
-    });
+    return res.status(500).json({ error: 'NETWORK_ERROR', message: error.message });
   }
 }

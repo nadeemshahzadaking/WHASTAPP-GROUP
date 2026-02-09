@@ -1,5 +1,5 @@
 
-export type Language = 'en';
+export type Language = 'en' | 'ur' | 'ro';
 export type Category = 
   | 'Education' | 'Jobs' | 'Business' | 'Islamic' | 'Entertainment' 
   | 'News' | 'Sports' | 'Tech' | 'Health' | 'Food' 
@@ -80,5 +80,12 @@ export interface Translations {
   aboutContent: string;
   officialTitle: string;
   officialSub: string;
+  promoNameLabel: string;
+  promoGmailLabel: string;
+  promoTypeLabel: string;
+  promoDetailsLabel: string;
+  promoSendBtn: string;
+  promoDirectBtn: string;
+  promoPolicyTitle: string;
   dir: 'ltr' | 'rtl';
 }

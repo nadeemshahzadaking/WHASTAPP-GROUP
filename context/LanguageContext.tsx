@@ -17,28 +17,32 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>(() => {
+    return (localStorage.getItem('lang') as Language) || 'en';
+  });
 
-  // Terms agreement is now implicitly true as per user request
-  const [hasAgreedTerms, setHasAgreedTermsState] = useState<boolean>(true);
-
+  const [hasAgreedTerms] = useState<boolean>(true);
   const [showSelector, setShowSelector] = useState(false);
 
-  const setLanguage = (_lang: Language) => {};
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('lang', lang);
+  };
+
   const setAgreedTerms = (_agreed: boolean) => {};
 
   const requestAction = (action: () => void) => {
-    // Execute action immediately without showing terms modal
     action();
   };
 
   useEffect(() => {
-    document.documentElement.setAttribute('dir', 'ltr');
-    document.documentElement.setAttribute('lang', 'en');
-    document.title = TRANSLATIONS.en.title;
-  }, []);
+    const t = TRANSLATIONS[language];
+    document.documentElement.setAttribute('dir', t.dir);
+    document.documentElement.setAttribute('lang', language);
+    document.title = t.title;
+  }, [language]);
 
-  const t = TRANSLATIONS.en;
+  const t = TRANSLATIONS[language];
 
   return (
     <LanguageContext.Provider value={{ 

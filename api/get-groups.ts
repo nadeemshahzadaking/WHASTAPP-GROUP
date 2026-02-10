@@ -12,25 +12,27 @@ export default async function handler(req: any, res: any) {
       .order('addedAt', { ascending: false });
 
     if (error) {
+      console.error('Supabase fetch error:', error);
       return res.status(500).json({ 
         error: 'SUPABASE_FETCH_FAILED',
         message: error.message 
       });
     }
 
-    // Map data to match existing frontend interface
-    const groups = data.map((item: any) => ({
-      id: item.id.toString(),
+    // Map data to match existing frontend interface with defensive checks
+    const groups = (data || []).map((item: any) => ({
+      id: item.id ? item.id.toString() : Math.random().toString(),
       name: item.name || 'Untitled Group',
       link: item.link || '',
       category: item.category || 'Other',
       description: item.description || '',
       addedAt: item.addedAt || new Date().toISOString(),
-      clicks: parseInt(item.clicks) || 0
+      clicks: typeof item.clicks === 'number' ? item.clicks : parseInt(item.clicks) || 0
     }));
 
     return res.status(200).json(groups);
   } catch (error: any) {
+    console.error('API Error:', error);
     return res.status(500).json({ 
       error: 'NETWORK_ERROR', 
       message: error.message 

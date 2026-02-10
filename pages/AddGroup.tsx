@@ -1,11 +1,8 @@
-
 import React, { useState, useMemo } from 'react';
 import { CATEGORIES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
 import BackButton from '../components/BackButton';
-import SafetyModal from '../components/SafetyModal';
 import AdInterstitial from '../components/AdInterstitial';
-import { containsBannedWords } from '../utils/wordFilter';
 
 const AddGroup: React.FC = () => {
   const { t } = useLanguage();
@@ -19,26 +16,7 @@ const AddGroup: React.FC = () => {
   const [linkError, setLinkError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   const [showAd, setShowAd] = useState(false);
-
-  const handleFieldChange = (val: string, field: keyof typeof formData) => {
-    if (containsBannedWords(val)) {
-      setFormData(prev => ({ ...prev, [field]: '' }));
-      setIsSafetyOpen(true);
-      return;
-    }
-    setFormData(prev => ({ ...prev, [field]: val }));
-  };
-
-  const handleLinkChange = (val: string) => {
-    setFormData({ ...formData, link: val });
-    if (val && !val.startsWith('https://chat.whatsapp.com/')) {
-      setLinkError(t.linkError);
-    } else {
-      setLinkError('');
-    }
-  };
 
   const isFormInvalid = useMemo(() => {
     return (
@@ -64,25 +42,18 @@ const AddGroup: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
-          link: formData.link,
-          category: formData.category,
-          description: formData.description,
+          ...formData,
           addedAt: new Date().toISOString()
         }),
       });
 
-      const data = await response.json().catch(() => ({}));
-
       if (response.ok) {
         setIsSubmitted(true);
       } else {
-        const errorMessage = data.error || 'Error saving data. Please try again.';
-        alert(errorMessage + (data.details ? `\n\nDetails: ${data.details}` : ''));
+        alert('کچھ غلط ہو گیا، دوبارہ کوشش کریں');
       }
-    } catch (error: any) {
-      console.error('Submission error:', error);
-      alert(`Network error: ${error.message}`);
+    } catch (error) {
+      alert('نیٹ ورک کا مسئلہ ہے');
     } finally {
       setIsSubmitting(false);
     }
@@ -90,18 +61,16 @@ const AddGroup: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <div className="bg-green-50 p-10 rounded-3xl border border-green-100 animate-in zoom-in-95 duration-300">
-          <div className="text-6xl mb-6">✅</div>
-          <h2 className="text-3xl font-bold text-green-800 mb-4">{t.successTitle}</h2>
-          <p className="text-green-700 text-lg mb-8 leading-relaxed whitespace-pre-line">
-            {t.successMsg}
-          </p>
+      <div className="max-w-xl mx-auto px-4 py-24 text-center">
+        <div className="bg-white p-12 rounded-[3rem] shadow-2xl border border-green-100">
+          <div className="text-7xl mb-6">🎉</div>
+          <h2 className="text-3xl font-black text-slate-900 mb-4">{t.successTitle}</h2>
+          <p className="text-slate-500 font-bold mb-10 leading-relaxed urdu-text">{t.successMsg}</p>
           <button
             onClick={() => setIsSubmitted(false)}
-            className="bg-[#25D366] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#128C7E] transition-all"
+            className="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-lg hover:scale-105 transition-all shadow-xl shadow-green-100"
           >
-            Add Another Group
+            ایک اور گروپ شامل کریں
           </button>
         </div>
       </div>
@@ -109,76 +78,74 @@ const AddGroup: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="max-w-xl mx-auto px-4 py-12">
       <AdInterstitial isOpen={showAd} onClose={() => setShowAd(false)} onComplete={handleSubmit} />
-      <SafetyModal isOpen={isSafetyOpen} onClose={() => setIsSafetyOpen(false)} />
       <BackButton />
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-xl overflow-hidden">
-        <div className={`bg-[#25D366] p-8 text-white text-left`}>
-          <h1 className="text-3xl font-bold mb-2">{t.addNewGroup}</h1>
-          <p className="opacity-90">{t.subtitle.split('.')[0]}.</p>
+      
+      <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100">
+        <div className="bg-slate-900 p-10 text-center">
+          <h1 className="text-3xl font-black text-white mb-2">{t.addNewGroup}</h1>
+          <p className="text-slate-400 font-bold text-sm urdu-text uppercase tracking-widest">مفت پروموشن کا موقع</p>
         </div>
 
-        <form onSubmit={onPreSubmit} className={`p-8 space-y-6 text-left`}>
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.groupName}</label>
+        <form onSubmit={onPreSubmit} className="p-10 space-y-8">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block px-1">گروپ کا نام</label>
             <input
               required
               type="text"
               value={formData.name}
-              onChange={(e) => handleFieldChange(e.target.value, 'name')}
-              className={`w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#25D366] outline-none transition-all text-left`}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-[#25D366] outline-none transition-all font-bold text-right text-slate-800 bg-slate-50/30"
+              placeholder="گروپ کا نام لکھیں"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.groupLink}</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block px-1">واٹس ایپ لنک</label>
             <input
               required
               type="text"
               dir="ltr"
               value={formData.link}
-              onChange={(e) => handleLinkChange(e.target.value)}
+              onChange={(e) => setFormData({...formData, link: e.target.value})}
               placeholder="https://chat.whatsapp.com/..."
-              className={`w-full px-4 py-3 rounded-xl border ${linkError ? 'border-red-500 bg-red-50' : 'border-slate-200'} focus:ring-2 focus:ring-[#25D366] outline-none transition-all text-left`}
+              className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-[#25D366] outline-none transition-all font-bold text-left text-slate-800 bg-slate-50/30"
             />
-            {linkError && (
-              <p className="mt-2 text-sm text-red-600 font-bold">{linkError}</p>
-            )}
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.selectCategory}</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block px-1">کیٹیگری</label>
             <select
               required
               value={formData.category}
-              onChange={(e) => setFormData({...formData, category: e.target.value as any})}
-              className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#25D366] outline-none bg-white"
+              onChange={(e) => setFormData({...formData, category: e.target.value})}
+              className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-[#25D366] outline-none font-bold bg-slate-50/30 text-right"
             >
-              <option value="">{t.selectCategory}</option>
+              <option value="">منتخب کریں</option>
               {CATEGORIES.map(cat => (
                 <option key={cat} value={cat}>{t.categories[cat]}</option>
               ))}
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold text-slate-700 mb-2">{t.descriptionLabel}</label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block px-1">گروپ کی تفصیل</label>
             <textarea
               rows={4}
               value={formData.description}
-              onChange={(e) => handleFieldChange(e.target.value, 'description')}
-              className={`w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#25D366] outline-none resize-none transition-all text-left`}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-[#25D366] outline-none resize-none transition-all font-bold text-right text-slate-800 bg-slate-50/30 urdu-text"
+              placeholder="گروپ کے بارے میں کچھ لکھیں"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl font-bold text-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            className="w-full bg-[#25D366] text-white py-5 rounded-[2rem] font-black text-xl shadow-xl shadow-green-100 hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50"
           >
-            {isSubmitting && <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>}
-            {isSubmitting ? 'Submitting...' : t.submitBtn}
+            {isSubmitting ? 'جمع ہو رہا ہے...' : t.submitBtn}
           </button>
         </form>
       </div>

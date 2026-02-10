@@ -4,60 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WhatsApp Group Directory | Professional Urdu Directory</title>
-    <!-- Tailwind is handled by Vite, removing CDN script to fix warning -->
+    <title>WhatsApp Group Directory | واٹس ایپ گروپ ڈائریکٹری</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --wa-green: #25D366;
-            --wa-dark: #128C7E;
+            --soft-bg: #fcfdfe;
         }
         body {
-            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
-            background-color: #f8fafc;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-        }
-        [dir="rtl"] {
             font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+            background-color: var(--soft-bg);
+            color: #1e293b;
+            line-height: 1.6;
         }
-        .whatsapp-green-text { color: var(--wa-green); }
-        .bg-whatsapp { background-color: var(--wa-green); }
-        .glass {
+        .urdu-text { line-height: 1.8; }
+        .glass-header {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-        .hero-gradient {
-            background: radial-gradient(circle at top right, rgba(37, 211, 102, 0.05), transparent),
-                        radial-gradient(circle at bottom left, rgba(18, 140, 126, 0.05), transparent);
+        .premium-card {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #f1f5f9;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
         }
-        @keyframes pulse-subtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .premium-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
-        .animate-pulse-subtle { animation: pulse-subtle 3s ease-in-out infinite; }
+        /* Fix for scrollable categories on mobile */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.3"
-  }
-}
-</script>
+    <script type="importmap">
+    {
+      "imports": {
+        "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.4",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+        "vite": "https://esm.sh/vite@^7.3.1",
+        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.95.3"
+      }
+    }
+    </script>
 </head>
-<body class="hero-gradient min-h-screen text-slate-900 overflow-x-hidden">
+<body class="min-h-screen">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

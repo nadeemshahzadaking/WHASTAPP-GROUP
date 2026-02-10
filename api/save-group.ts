@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  'https://bczjcuykdlobvdbcawxz.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k'
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_ANON_KEY || ''
 );
 
 export default async function handler(req: any, res: any) {
@@ -18,7 +18,7 @@ export default async function handler(req: any, res: any) {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const { name, link, category, description, addedAt } = body;
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('whatsapp_groups')
       .insert([
         { 
@@ -31,10 +31,9 @@ export default async function handler(req: any, res: any) {
         }
       ]);
 
-    if (error) return res.status(200).json({ isError: true, details: error.message });
-
+    if (error) throw error;
     return res.status(200).json({ success: true });
   } catch (err: any) {
-    return res.status(500).json({ isError: true, msg: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }

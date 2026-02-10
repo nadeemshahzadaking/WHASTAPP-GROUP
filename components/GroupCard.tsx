@@ -1,55 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { WhatsAppGroup } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import AdInterstitial from './AdInterstitial';
 
 interface GroupCardProps {
   group: WhatsAppGroup;
 }
 
 const GroupCard: React.FC<GroupCardProps> = ({ group }) => {
-  const { t, requestAction } = useLanguage();
-  const [showAd, setShowAd] = useState(false);
-  
-  const handleJoinClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    requestAction(() => setShowAd(true));
-  };
+  const { t } = useLanguage();
 
-  const completeJoin = async () => {
-    setShowAd(false);
-    fetch('/api/update-click', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ link: group.link })
-    }).catch(() => {});
+  const handleJoin = async () => {
+    try {
+      await fetch('/api/update-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link: group.link })
+      });
+    } catch (e) {}
     window.open(group.link, '_blank', 'noopener,noreferrer');
   };
 
   return (
-    <div className="premium-card bg-white rounded-[2.5rem] border border-slate-100 p-8 flex flex-col h-full shadow-sm">
-      <AdInterstitial isOpen={showAd} onClose={() => setShowAd(false)} onComplete={completeJoin} />
-      
+    <div className="premium-card rounded-[2.5rem] p-8 flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
-        <div className="bg-slate-50 text-slate-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100">
+        <span className="bg-green-50 text-[#25D366] px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-green-100">
           {t.categories[group.category]}
-        </div>
-        <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-400">
-           <span className="w-2 h-2 rounded-full bg-green-400"></span>
-           {group.clicks || 0} ویوز
+        </span>
+        <div className="flex items-center gap-1.5 text-[11px] font-black text-slate-400 bg-slate-50 px-3 py-1.5 rounded-full">
+          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          {group.clicks || 0} ویوز
         </div>
       </div>
-      
-      <h3 className="text-xl font-black text-slate-900 mb-4 line-clamp-1 text-right leading-tight">
+
+      <h3 className="text-2xl font-black text-slate-900 mb-4 line-clamp-1 urdu-font text-right">
         {group.name}
       </h3>
-      
-      <p className="text-slate-500 text-sm urdu-text line-clamp-3 mb-8 flex-grow text-right opacity-80">
-        {group.description || 'اس گروپ کی کوئی تفصیل دستیاب نہیں۔ گروپ کے بارے میں جاننے کے لیے جوائن کریں۔'}
+
+      <p className="text-slate-500 text-sm urdu-font line-clamp-3 mb-8 flex-grow text-right leading-relaxed opacity-80">
+        {group.description || 'اس گروپ کی کوئی تفصیل دستیاب نہیں ہے۔ گروپ کے بارے میں مزید جاننے کے لیے ابھی جوائن کریں۔'}
       </p>
 
       <button
-        onClick={handleJoinClick}
+        onClick={handleJoin}
         className="w-full bg-slate-900 text-white py-4.5 rounded-[1.5rem] font-black text-sm transition-all flex items-center justify-center gap-3 shadow-xl shadow-slate-200 hover:bg-[#25D366] hover:shadow-green-200 active:scale-95"
       >
         <span>{t.joinNow}</span>

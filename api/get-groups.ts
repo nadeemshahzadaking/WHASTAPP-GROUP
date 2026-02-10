@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -14,12 +13,23 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
+    // Check if keys are present
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+      return res.status(500).json({ error: 'Supabase keys are missing in environment variables.' });
+    }
+
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .select('*')
       .order('addedat', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase Error:', error);
+      return res.status(500).json({ 
+        error: error.message, 
+        hint: 'Please check your RLS policies in Supabase dashboard.' 
+      });
+    }
 
     const formatted = (data || []).map((item: any) => ({
       id: item.id?.toString(),
@@ -33,6 +43,7 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json(formatted);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message });
+    console.error('API Server Error:', err);
+    return res.status(500).json({ error: 'Internal Server Error', details: err.message });
   }
 }

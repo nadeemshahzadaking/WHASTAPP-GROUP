@@ -1,43 +1,50 @@
-
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>WhatsApp Group Directory | واٹس ایپ گروپ ڈائریکٹری</title>
+    <title>WhatsApp Directory | واٹس ایپ ڈائریکٹری</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --wa-green: #25D366;
-            --soft-bg: #fcfdfe;
+            --wa-dark: #075E54;
+            --bg-light: #f8fafc;
         }
         body {
-            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
-            background-color: var(--soft-bg);
+            font-family: 'Noto Sans Arabic', 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
             color: #1e293b;
-            line-height: 1.6;
+            overflow-x: hidden;
         }
-        .urdu-text { line-height: 1.8; }
-        .glass-header {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
+        .urdu-font { font-family: 'Noto Sans Arabic', sans-serif; }
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
         .premium-card {
             background: white;
-            border-radius: 24px;
-            border: 1px solid #f1f5f9;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .premium-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+            border-color: var(--wa-green);
         }
-        /* Fix for scrollable categories on mobile */
+        .btn-gradient {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        }
+        .hero-text {
+            background: linear-gradient(to bottom right, #0f172a, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>

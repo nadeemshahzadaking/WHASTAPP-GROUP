@@ -1,35 +1,20 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * 🛠️ SUPABASE CONNECTION UTILITY
- * Designed for Vercel Serverless Functions and Vite Client
+ * 🛠️ DIRECT SUPABASE CONNECTION
+ * ----------------------------
+ * ہم یہاں آپ کی پبلک کیز (Public Keys) براہ راست شامل کر رہے ہیں 
+ * تاکہ ورسل (Vercel) کے انوائرمنٹ ویری ایبلز کا مسئلہ ختم ہو جائے۔
  */
 
-const getSupabaseConfig = () => {
-  // Try to get from process.env (Node.js/Vercel)
-  const url = (typeof process !== 'undefined' && process.env?.SUPABASE_URL) || 
-              (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL) || 
-              'https://bczjcuykdlobvdbcawxz.supabase.co';
-  
-  const key = (typeof process !== 'undefined' && process.env?.SUPABASE_ANON_KEY) || 
-              (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const SUPABASE_URL = 'https://bczjcuykdlobvdbcawxz.supabase.co';
 
-  // Fallback for Vite client-side (import.meta.env)
-  // @ts-ignore
-  const viteUrl = typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL;
-  // @ts-ignore
-  const viteKey = typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY;
+// یہ وہی کی (Key) ہے جو آپ نے .env.local میں دی تھی
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k';
 
-  return {
-    url: url || viteUrl || 'https://bczjcuykdlobvdbcawxz.supabase.co',
-    key: key || viteKey || ''
-  };
-};
+// کلائنٹ بنانا
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const config = getSupabaseConfig();
-
-if (!config.key) {
-  console.error("CRITICAL: SUPABASE_ANON_KEY is missing! The API will return 500 errors until this is fixed in Vercel settings.");
-}
-
-export const supabase = createClient(config.url, config.key);
+// یہ چیک کرنے کے لیے کہ کیا کنکشن درست ہے
+console.log("⚡ Supabase Direct Client Initialized");

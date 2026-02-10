@@ -1,7 +1,13 @@
-import { supabase } from '../utils/supabase';
+
+import { createClient } from '@supabase/supabase-js';
+
+// ورسل سرور کے لیے براہ راست کلائنٹ
+const supabase = createClient(
+  'https://bczjcuykdlobvdbcawxz.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k'
+);
 
 export default async function handler(req: any, res: any) {
-  // Set CORS Headers for production
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -15,17 +21,12 @@ export default async function handler(req: any, res: any) {
       .order('addedat', { ascending: false });
 
     if (error) {
-      console.error('Supabase Error:', error.message);
-      return res.status(500).json({ 
-        error: 'DATABASE_FETCH_FAILED', 
-        details: error.message 
-      });
+      return res.status(200).json({ isError: true, details: error.message });
     }
 
-    // Convert Database fields (snake_case/lowercase) to Frontend fields (camelCase)
-    const formattedGroups = (data || []).map((item: any) => ({
+    const formatted = (data || []).map((item: any) => ({
       id: item.id?.toString(),
-      name: item.name || 'No Name',
+      name: item.name || 'Untitled',
       link: item.link || '',
       category: item.category || 'Other',
       description: item.description || '',
@@ -33,12 +34,8 @@ export default async function handler(req: any, res: any) {
       clicks: parseInt(item.clicks) || 0
     }));
 
-    return res.status(200).json(formattedGroups);
+    return res.status(200).json(formatted);
   } catch (err: any) {
-    console.error('API Handler Crash:', err.message);
-    return res.status(500).json({ 
-      error: 'SERVER_ERROR', 
-      message: err.message 
-    });
+    return res.status(200).json({ isError: true, msg: err.message });
   }
 }

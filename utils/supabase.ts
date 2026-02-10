@@ -2,39 +2,50 @@
 import { createClient } from '@supabase/supabase-js';
 
 /**
- * Safely retrieves environment variables from both Vite (client) 
- * and standard Node.js (API/Server) contexts.
+ * 🛠️ SUPABASE CONNECTION UTILITY
+ * ------------------------------
+ * This utility connects to your database using the keys provided in .env.local
+ * 
+ * IMPORTANT: You must create the table in your Supabase SQL Editor:
+ * 
+ * create table whatsapp_groups (
+ *   id bigint primary key generated always as identity,
+ *   name text not null,
+ *   link text not null unique,
+ *   category text not null,
+ *   description text,
+ *   addedAt timestamp with time zone default now(),
+ *   clicks bigint default 0
+ * );
  */
+
 const getEnvVar = (key: string): string => {
-  // Check process.env (Node.js / Vercel API routes)
+  // Try Vercel/Node process.env first
   if (typeof process !== 'undefined' && process.env && process.env[key]) {
     return process.env[key] as string;
   }
   
-  // Check import.meta.env (Vite / Client-side)
-  // @ts-ignore
-  if (typeof import.meta !== 'undefined' && (import.meta as any).env) {
+  // Try Vite/Meta fallback
+  try {
     // @ts-ignore
-    const viteKey = `VITE_${key}`;
-    // @ts-ignore
-    return (import.meta as any).env[viteKey] || (import.meta as any).env[key] || '';
-  }
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      return import.meta.env[key] || import.meta.env[`VITE_${key}`] || '';
+    }
+  } catch (e) {}
 
   return '';
 };
 
-const supabaseUrl = 
-  getEnvVar('NEXT_PUBLIC_SUPABASE_URL') || 
-  getEnvVar('SUPABASE_URL') || 
-  '';
+const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
+const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
-const supabaseAnonKey = 
-  getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY') || 
-  getEnvVar('SUPABASE_ANON_KEY') || 
-  '';
-
+// Debugging logs for server-side (Vercel Logs)
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase credentials missing. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set in your .env.local or platform environment variables.");
+  console.error("CRITICAL: Supabase keys are missing! Check Vercel Environment Variables or .env.local");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co', 
+  supabaseAnonKey || 'placeholder'
+);

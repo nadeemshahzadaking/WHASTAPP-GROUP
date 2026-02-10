@@ -2,26 +2,34 @@
 import { supabase } from '../utils/supabase';
 
 /**
- * 📥 SAVE GROUP API - Supabase Edition
+ * 📥 SAVE GROUP API
  */
 export default async function handler(req: any, res: any) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
-    const { name, link, category, description, addedAt } = req.body;
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { name, link, category, description, addedAt } = body;
 
     if (!name || !link || !category) {
-      return res.status(400).json({ error: 'Required fields are missing.' });
+      return res.status(400).json({ error: 'Missing required fields: name, link, or category.' });
+    }
+
+    // Basic URL validation
+    if (!link.includes('chat.whatsapp.com')) {
+      return res.status(400).json({ error: 'Invalid WhatsApp link format.' });
     }
 
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .insert([
         { 
-          name, 
-          link, 
+          name: name.trim(), 
+          link: link.trim(), 
           category, 
-          description: description || '', 
+          description: description?.trim() || '', 
           addedAt: addedAt || new Date().toISOString(),
           clicks: 0
         }
@@ -29,16 +37,27 @@ export default async function handler(req: any, res: any) {
       .select();
 
     if (error) {
-      console.error('Supabase Insert Error:', error);
-      if (error.code === '23505') { // Unique constraint violation
-        return res.status(400).json({ error: 'This group link already exists in our directory.' });
+      console.error('Supabase Save Error:', error);
+      
+      // Handle unique constraint (Link already exists)
+      if (error.code === '23505') {
+        return res.status(409).json({ error: 'This group link is already in our directory.' });
       }
-      return res.status(500).json({ error: 'Database error', details: error.message });
+
+      return res.status(500).json({ 
+        error: 'DATABASE_INSERT_FAILED', 
+        details: error.message,
+        hint: error.hint,
+        code: error.code
+      });
     }
 
-    return res.status(200).json({ status: 'success', data });
-  } catch (error: any) {
-    console.error('Internal Server Error:', error);
-    return res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    return res.status(200).json({ success: true, data });
+  } catch (err: any) {
+    console.error('API Exception:', err);
+    return res.status(500).json({ 
+      error: 'API_INTERNAL_ERROR', 
+      message: err.message 
+    });
   }
 }

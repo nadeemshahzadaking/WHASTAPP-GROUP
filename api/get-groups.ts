@@ -2,7 +2,7 @@
 import { supabase } from '../utils/supabase';
 
 /**
- * 📊 GET GROUPS API - Supabase Edition
+ * 📊 GET GROUPS API
  */
 export default async function handler(req: any, res: any) {
   try {
@@ -12,30 +12,33 @@ export default async function handler(req: any, res: any) {
       .order('addedAt', { ascending: false });
 
     if (error) {
-      console.error('Supabase fetch error:', error);
+      // If table doesn't exist, Supabase returns error code '42P01'
+      if (error.code === '42P01') {
+        console.warn("Table 'whatsapp_groups' not found. Returning empty list.");
+        return res.status(200).json([]);
+      }
+      
+      console.error('Supabase Error:', error);
       return res.status(500).json({ 
-        error: 'SUPABASE_FETCH_FAILED',
-        message: error.message 
+        error: 'DATABASE_ERROR',
+        details: error.message,
+        code: error.code
       });
     }
 
-    // Map data to match existing frontend interface with defensive checks
     const groups = (data || []).map((item: any) => ({
-      id: item.id ? item.id.toString() : Math.random().toString(),
-      name: item.name || 'Untitled Group',
+      id: item.id?.toString() || Math.random().toString(),
+      name: item.name || 'Untitled',
       link: item.link || '',
       category: item.category || 'Other',
       description: item.description || '',
       addedAt: item.addedAt || new Date().toISOString(),
-      clicks: typeof item.clicks === 'number' ? item.clicks : parseInt(item.clicks) || 0
+      clicks: Number(item.clicks) || 0
     }));
 
     return res.status(200).json(groups);
-  } catch (error: any) {
-    console.error('API Error:', error);
-    return res.status(500).json({ 
-      error: 'NETWORK_ERROR', 
-      message: error.message 
-    });
+  } catch (err: any) {
+    console.error('System Error:', err);
+    return res.status(500).json({ error: 'SERVER_EXCEPTION', message: err.message });
   }
 }

@@ -3,39 +3,50 @@
 <html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Group Directory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhatsApp Group Directory | Professional Urdu Directory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --wa-green: #25D366;
+            --wa-dark: #128C7E;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #fcfdfe;
+            font-family: 'Inter', 'Noto Sans Arabic', sans-serif;
+            background-color: #f8fafc;
             -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
-        .whatsapp-green-text { color: #25D366; }
-        
-        .btn-bounce:active { transform: scale(0.9); }
-        .btn-bounce:hover { transform: translateY(-3px); }
-        
-        .btn-glow:hover {
-            box-shadow: 0 0 20px rgba(37, 211, 102, 0.4);
-            filter: brightness(1.1);
+        [dir="rtl"] {
+            font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
         }
+        .whatsapp-green-text { color: var(--wa-green); }
+        .bg-whatsapp { background-color: var(--wa-green); }
         
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        .animate-float { animation: float 3s ease-in-out infinite; }
 
-        .bg-clean {
-            background-image: radial-gradient(#e2e8f0 0.5px, transparent 0.5px);
-            background-size: 30px 30px;
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(37, 211, 102, 0.05), transparent),
+                        radial-gradient(circle at bottom left, rgba(18, 140, 126, 0.05), transparent);
         }
+
+        @keyframes pulse-subtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-subtle { animation: pulse-subtle 3s ease-in-out infinite; }
+
+        /* Smooth Mobile Scrolling */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 <script type="importmap">
 {
@@ -51,7 +62,7 @@
 }
 </script>
 </head>
-<body class="bg-clean text-slate-900 overflow-x-hidden">
+<body class="hero-gradient min-h-screen text-slate-900 overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

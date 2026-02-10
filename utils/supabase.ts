@@ -2,37 +2,34 @@ import { createClient } from '@supabase/supabase-js';
 
 /**
  * 🛠️ SUPABASE CONNECTION UTILITY
- * ------------------------------
- * یہ فائل ویب سائٹ اور بیک اینڈ دونوں کے لیے مین کنکشن ہے۔
+ * Designed for Vercel Serverless Functions and Vite Client
  */
 
-const getEnvVar = (key: string): string => {
-  // Try server-side process.env (Vercel/Node)
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key] as string;
-  }
+const getSupabaseConfig = () => {
+  // Try to get from process.env (Node.js/Vercel)
+  const url = (typeof process !== 'undefined' && process.env?.SUPABASE_URL) || 
+              (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_URL) || 
+              'https://bczjcuykdlobvdbcawxz.supabase.co';
   
-  // Try client-side import.meta.env (Vite)
-  try {
-    // @ts-ignore
-    if (typeof import.meta !== 'undefined' && import.meta.env) {
-      // @ts-ignore
-      return import.meta.env[key] || import.meta.env[`VITE_${key}`] || '';
-    }
-  } catch (e) {}
+  const key = (typeof process !== 'undefined' && process.env?.SUPABASE_ANON_KEY) || 
+              (typeof process !== 'undefined' && process.env?.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
-  return '';
+  // Fallback for Vite client-side (import.meta.env)
+  // @ts-ignore
+  const viteUrl = typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_URL;
+  // @ts-ignore
+  const viteKey = typeof import.meta !== 'undefined' && import.meta.env?.VITE_SUPABASE_ANON_KEY;
+
+  return {
+    url: url || viteUrl || 'https://bczjcuykdlobvdbcawxz.supabase.co',
+    key: key || viteKey || ''
+  };
 };
 
-// چیک کریں کہ کیا NEXT_PUBLIC پریفکس کے ساتھ یا بغیر کیز موجود ہیں
-const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL') || getEnvVar('SUPABASE_URL');
-const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY');
+const config = getSupabaseConfig();
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn("Supabase credentials missing! Please check environment variables.");
+if (!config.key) {
+  console.error("CRITICAL: SUPABASE_ANON_KEY is missing! The API will return 500 errors until this is fixed in Vercel settings.");
 }
 
-export const supabase = createClient(
-  supabaseUrl || 'https://bczjcuykdlobvdbcawxz.supabase.co',
-  supabaseAnonKey || ''
-);
+export const supabase = createClient(config.url, config.key);

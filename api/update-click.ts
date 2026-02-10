@@ -1,7 +1,8 @@
+
 import { supabase } from '../utils/supabase';
 
 /**
- * 🖱️ UPDATE CLICK API
+ * 🖱️ UPDATE CLICK COUNT API
  */
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,14 +14,10 @@ export default async function handler(req: any, res: any) {
 
   try {
     let body = req.body;
-    if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {}
-    }
-
+    if (typeof body === 'string') body = JSON.parse(body);
     const { link } = body;
-    if (!link) return res.status(400).json({ error: 'Link missing' });
+
+    if (!link) return res.status(400).json({ error: 'Link is required' });
 
     // پہلے موجودہ کلکس حاصل کریں
     const { data: current, error: fetchError } = await supabase
@@ -43,6 +40,6 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ success: true });
   } catch (err: any) {
     console.error('Click Track Error:', err);
-    return res.status(500).json({ error: 'UPDATE_FAILED' });
+    return res.status(500).json({ error: 'TRACKING_FAILED' });
   }
 }

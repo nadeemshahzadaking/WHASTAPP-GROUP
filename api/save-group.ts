@@ -1,8 +1,5 @@
 import { supabase } from '../utils/supabase';
 
-/**
- * 📥 SAVE GROUP API
- */
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -14,20 +11,16 @@ export default async function handler(req: any, res: any) {
   try {
     let body = req.body;
     if (typeof body === 'string') {
-      try {
-        body = JSON.parse(body);
-      } catch (e) {
-        return res.status(400).json({ error: 'INVALID_JSON' });
-      }
+      try { body = JSON.parse(body); } catch (e) { return res.status(400).json({ error: 'INVALID_JSON' }); }
     }
 
     const { name, link, category, description, addedAt } = body;
 
     if (!name || !link || !category) {
-      return res.status(400).json({ error: 'MISSING_FIELDS' });
+      return res.status(400).json({ error: 'REQUIRED_FIELDS_MISSING' });
     }
 
-    // سپربیس میں ڈیٹا بھیجیں (addedAt کو addedat کے طور پر)
+    // Insert into Supabase table
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .insert([
@@ -43,16 +36,14 @@ export default async function handler(req: any, res: any) {
       .select();
 
     if (error) {
-      console.error('Supabase Save Error:', error);
-      if (error.code === '23505') {
-        return res.status(409).json({ error: 'DUPLICATE_LINK' });
-      }
-      return res.status(500).json({ error: 'DATABASE_ERROR', details: error.message });
+      console.error('Save Error:', error.message);
+      if (error.code === '23505') return res.status(409).json({ error: 'DUPLICATE_LINK' });
+      return res.status(500).json({ error: 'SAVE_ERROR', details: error.message });
     }
 
     return res.status(200).json({ success: true, data });
   } catch (err: any) {
-    console.error('API Crash:', err);
-    return res.status(500).json({ error: 'SERVER_ERROR', message: err.message });
+    console.error('API Save Crash:', err.message);
+    return res.status(500).json({ error: 'SERVER_CRASH', message: err.message });
   }
 }

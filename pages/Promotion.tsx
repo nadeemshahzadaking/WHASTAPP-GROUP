@@ -4,6 +4,12 @@ import { useLanguage } from '../context/LanguageContext';
 import BackButton from '../components/BackButton';
 import LanguageSelector from '../components/LanguageSelector';
 
+/**
+ * 🚀 PROMOTION PAGE
+ * -----------------
+ * This page allows users to submit promotion requests.
+ * Features: Local Language Selector, Dynamic Form, Validation, and Direct Email contact.
+ */
 const Promotion: React.FC = () => {
   const { t, language } = useLanguage();
   const adminEmail = "mrbadshahoftheking@gmail.com";
@@ -38,6 +44,8 @@ const Promotion: React.FC = () => {
     'Beauty & Fashion Brand',
     'Tour & Travels Agency',
     'Automobile Dealing',
+    'Online Course / Tuition',
+    'Social Media Management',
     'Other (Specify Below)'
   ];
 
@@ -59,16 +67,16 @@ const Promotion: React.FC = () => {
     e.preventDefault();
     
     if (!validations.email) {
-      setError('Please enter a valid Gmail address (No spaces).');
+      setError(language === 'ur' ? 'براہ کرم درست جی میل ایڈریس درج کریں (اسپیس کے بغیر)۔' : 'Please enter a valid Gmail address (No spaces).');
       return;
     }
 
     if (!validations.name || !validations.type || !validations.details) {
-      setError('Please fill all required fields correctly.');
+      setError(language === 'ur' ? 'براہ کرم تمام ضروری فیلڈز درست طریقے سے پُر کریں۔' : 'Please fill all required fields correctly.');
       return;
     }
 
-    const type = formData.promoType === 'Other (Specify Below)' ? formData.customType : formData.promoType;
+    const type = formData.promoType.includes('Other') ? formData.customType : formData.promoType;
     const subject = encodeURIComponent(`PROMOTION REQUEST: ${type}`);
     const body = encodeURIComponent(
       `--- Promotion Request Form ---\n\n` +
@@ -88,7 +96,7 @@ const Promotion: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 relative">
-      {/* Local Language Selector for this page only */}
+      {/* Local Language Selector for this page only as requested */}
       <div className="absolute top-0 right-4">
         <LanguageSelector />
       </div>
@@ -133,7 +141,7 @@ const Promotion: React.FC = () => {
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                     className={`w-full px-6 py-4 rounded-2xl border-2 outline-none transition-all font-bold ${validations.name ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900 bg-slate-50/50'}`} 
-                    placeholder="Enter your full name"
+                    placeholder={language === 'ur' ? 'اپنا پورا نام درج کریں' : 'Enter your full name'}
                   />
                 </div>
 
@@ -164,7 +172,7 @@ const Promotion: React.FC = () => {
                   </select>
                 </div>
 
-                {formData.promoType === 'Other (Specify Below)' && (
+                {formData.promoType.includes('Other') && (
                   <div className="animate-in slide-in-from-top-2 duration-300">
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Custom Category Name</label>
                     <input 
@@ -210,7 +218,7 @@ const Promotion: React.FC = () => {
             
             <button 
               onClick={handleDirectEmail}
-              className="group flex flex-col md:flex-row items-center gap-6 bg-slate-50 border border-slate-100 px-10 py-5 rounded-[2.5rem] hover:border-slate-900 transition-all shadow-sm active:scale-95"
+              className="group flex flex-col md:flex-row items-center gap-6 bg-slate-50 border border-slate-100 px-10 py-5 rounded-[2.5rem] hover:border-slate-900 transition-all shadow-sm active:scale-95 w-full md:w-auto"
             >
               <div className="text-4xl">📩</div>
               <div className="flex flex-col items-center md:items-start">
@@ -224,6 +232,15 @@ const Promotion: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
+      `}} />
     </div>
   );
 };

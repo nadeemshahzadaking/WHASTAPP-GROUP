@@ -10,7 +10,7 @@ const Home: React.FC = () => {
   const [search, setSearch] = useState('');
   const [groups, setGroups] = useState<WhatsAppGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<{title: string, msg: string} | null>(null);
+  const [error, setError] = useState<{title: string, msg: string, details?: string} | null>(null);
   const [isSafetyOpen, setIsSafetyOpen] = useState(false);
   
   const navigate = useNavigate();
@@ -20,20 +20,24 @@ const Home: React.FC = () => {
     setLoading(true);
     setError(null);
 
+    // Using relative path for the API. 
+    // If you get a 404 here, it means your hosting does not support /api/ routes.
     fetch(`/api/get-groups?t=${Date.now()}`)
       .then(async res => {
         const text = await res.text();
-        const contentType = res.headers.get("content-type") || "";
+        
+        if (res.status === 404) {
+          throw new Error("API_NOT_FOUND: The /api/get-groups route was not found. Please ensure your hosting environment supports serverless functions (like Vercel).");
+        }
 
-        if (!res.ok || !contentType.includes("application/json") || text.includes("404")) {
-          console.error("Fetch Error:", text);
-          throw new Error(res.status === 404 ? "Source Not Found (404)" : "Invalid Data Source");
+        if (!res.ok) {
+          throw new Error(`SERVER_ERROR: Status ${res.status}`);
         }
 
         try {
           return JSON.parse(text);
         } catch (e) {
-          throw new Error("Invalid Data Format");
+          throw new Error("INVALID_JSON: The server response was not valid JSON.");
         }
       })
       .then(data => {
@@ -45,11 +49,11 @@ const Home: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
+        console.error("Fetch Error:", err);
         setError({
-          title: "Connection Issue",
-          msg: err.message.includes("404") 
-            ? "The Google Script URL is returning a 404. Please check your SHEET_URL configuration." 
-            : "Could not load groups. Please check your internet or configuration."
+          title: "Connection Error",
+          msg: "Unable to load data from the database.",
+          details: err.message
         });
         setLoading(false);
       });
@@ -132,23 +136,33 @@ const Home: React.FC = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 space-y-20">
           {loading ? (
-            <div className="flex justify-center py-20">
+            <div className="flex flex-col items-center justify-center py-20 space-y-4">
               <div className="w-10 h-10 border-4 border-green-200 border-t-[#25D366] rounded-full animate-spin"></div>
+              <p className="text-slate-400 font-bold animate-pulse">Loading Directory...</p>
             </div>
           ) : error ? (
-            <div className="text-center py-20 bg-red-50 rounded-[3rem] border border-red-100 px-6">
+            <div className="text-center py-20 bg-red-50 rounded-[3rem] border border-red-100 px-6 max-w-2xl mx-auto shadow-sm">
               <div className="text-5xl mb-4">⚠️</div>
               <h3 className="text-2xl font-black text-red-900 mb-2">{error.title}</h3>
-              <p className="text-red-700 font-medium max-w-md mx-auto mb-6">{error.msg}</p>
+              <p className="text-red-700 font-medium mb-4">{error.msg}</p>
+              {error.details && (
+                <div className="bg-red-100/50 p-4 rounded-xl mb-6 text-xs font-mono text-red-800 text-left overflow-x-auto">
+                  {error.details}
+                </div>
+              )}
               <button 
                 onClick={() => window.location.reload()}
-                className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all"
+                className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all active:scale-95"
               >
-                Try Again
+                Refresh Page
               </button>
             </div>
           ) : groups.length === 0 ? (
-            <div className="text-center py-10 opacity-50 font-bold">No groups found.</div>
+            <div className="text-center py-20 bg-slate-50 rounded-[3rem] border border-dashed border-slate-200">
+               <div className="text-5xl mb-4">📭</div>
+               <p className="text-slate-400 font-bold">No groups found in the database. Be the first to add one!</p>
+               <button onClick={() => navigate('/add')} className="mt-4 text-[#25D366] font-black hover:underline">+ Add New Group</button>
+            </div>
           ) : (
             featured.slice(0, 4).map((cat) => {
               const categoryGroups = groups.filter(g => g.category === cat).slice(0, 3);
@@ -164,7 +178,7 @@ const Home: React.FC = () => {
                         <p className="text-xs text-slate-400 font-bold uppercase">Latest Groups</p>
                       </div>
                     </div>
-                    <button onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)} className="bg-slate-100 text-slate-600 px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-200">
+                    <button onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)} className="bg-slate-100 text-slate-600 px-5 py-2 rounded-xl font-bold text-sm hover:bg-slate-200 transition-colors">
                       View All
                     </button>
                   </div>

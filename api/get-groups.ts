@@ -1,12 +1,11 @@
 
-import { supabase } from '../utils/supabase';
+import { createClient } from '@supabase/supabase-js'
+const supabaseUrl = 'https://bczjcuykdlobvdbcawxz.supabase.co'
+const supabaseKey = process.env.SUPABASE_KEY
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-/**
- * 📊 GET GROUPS API
- * Fetches all groups from the 'whatsapp_groups' table.
- */
 export default async function handler(req: any, res: any) {
-  // Add CORS headers for cross-origin if needed
+  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
 
@@ -21,21 +20,14 @@ export default async function handler(req: any, res: any) {
       .order('addedAt', { ascending: false });
 
     if (error) {
-      // Handle "Table not found" gracefully
+      console.error('Database Error:', error);
+      // If table doesn't exist, return empty array instead of 500
       if (error.code === '42P01') {
-        console.warn("Table 'whatsapp_groups' does not exist yet.");
         return res.status(200).json([]);
       }
-      
-      console.error('Supabase fetch error:', error);
-      return res.status(500).json({ 
-        error: 'DATABASE_ERROR', 
-        message: error.message,
-        code: error.code 
-      });
+      return res.status(500).json({ error: 'DATABASE_ERROR', details: error.message });
     }
 
-    // Map database fields to the frontend expected format
     const groups = (data || []).map((item: any) => ({
       id: item.id?.toString() || Math.random().toString(),
       name: item.name || 'Untitled',
@@ -48,10 +40,7 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json(groups);
   } catch (err: any) {
-    console.error('API Error:', err);
-    return res.status(500).json({ 
-      error: 'SERVER_EXCEPTION', 
-      message: err.message 
-    });
+    console.error('Server Exception:', err);
+    return res.status(500).json({ error: 'SERVER_EXCEPTION', message: err.message });
   }
 }

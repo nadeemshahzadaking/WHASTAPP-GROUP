@@ -1,6 +1,8 @@
-
 import { supabase } from '../utils/supabase';
 
+/**
+ * 🖱️ UPDATE CLICK API
+ */
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -18,9 +20,9 @@ export default async function handler(req: any, res: any) {
     }
 
     const { link } = body;
-    if (!link) return res.status(400).json({ error: 'Link is missing' });
+    if (!link) return res.status(400).json({ error: 'Link missing' });
 
-    // Atomic update using Supabase (fetching current then updating)
+    // پہلے موجودہ کلکس حاصل کریں
     const { data: current, error: fetchError } = await supabase
       .from('whatsapp_groups')
       .select('clicks')
@@ -40,7 +42,7 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json({ success: true });
   } catch (err: any) {
-    console.error('Click update error:', err);
-    return res.status(500).json({ error: 'CLICK_UPDATE_FAILED', details: err.message });
+    console.error('Click Track Error:', err);
+    return res.status(500).json({ error: 'UPDATE_FAILED' });
   }
 }

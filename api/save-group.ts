@@ -1,6 +1,8 @@
-
 import { supabase } from '../utils/supabase';
 
+/**
+ * 📥 SAVE GROUP API
+ */
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -15,21 +17,17 @@ export default async function handler(req: any, res: any) {
       try {
         body = JSON.parse(body);
       } catch (e) {
-        return res.status(400).json({ error: 'INVALID_JSON', details: 'The request body must be valid JSON.' });
+        return res.status(400).json({ error: 'INVALID_JSON' });
       }
     }
 
     const { name, link, category, description, addedAt } = body;
 
     if (!name || !link || !category) {
-      return res.status(400).json({ error: 'MISSING_FIELDS', details: 'Name, Link, and Category are required.' });
+      return res.status(400).json({ error: 'MISSING_FIELDS' });
     }
 
-    // Server-side link validation
-    if (!link.includes('chat.whatsapp.com/')) {
-      return res.status(400).json({ error: 'INVALID_LINK', details: 'Please provide a valid WhatsApp chat link.' });
-    }
-
+    // سپربیس میں ڈیٹا بھیجیں (addedAt کو addedat کے طور پر)
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .insert([
@@ -38,31 +36,23 @@ export default async function handler(req: any, res: any) {
           link: link.trim(), 
           category, 
           description: description?.trim() || '', 
-          addedAt: addedAt || new Date().toISOString(),
+          addedat: addedAt || new Date().toISOString(),
           clicks: 0
         }
       ])
       .select();
 
     if (error) {
-      console.error('Supabase save error:', error);
-      // Handle unique constraint (duplicate link)
+      console.error('Supabase Save Error:', error);
       if (error.code === '23505') {
-        return res.status(409).json({ error: 'DUPLICATE_LINK', details: 'This group link is already in our directory.' });
+        return res.status(409).json({ error: 'DUPLICATE_LINK' });
       }
-      return res.status(500).json({ 
-        error: 'DATABASE_INSERT_ERROR', 
-        details: error.message,
-        code: error.code 
-      });
+      return res.status(500).json({ error: 'DATABASE_ERROR', details: error.message });
     }
 
     return res.status(200).json({ success: true, data });
   } catch (err: any) {
-    console.error('SAVE API Crash:', err);
-    return res.status(500).json({ 
-      error: 'INTERNAL_SERVER_ERROR', 
-      message: err.message 
-    });
+    console.error('API Crash:', err);
+    return res.status(500).json({ error: 'SERVER_ERROR', message: err.message });
   }
 }

@@ -1,11 +1,9 @@
+import { supabase } from '../utils/supabase';
 
-import { createClient } from '@supabase/supabase-js'
-const supabaseUrl = 'https://bczjcuykdlobvdbcawxz.supabase.co'
-const supabaseKey = process.env.SUPABASE_KEY
-const supabase = createClient(supabaseUrl, supabaseKey)
-
+/**
+ * 📊 GET GROUPS API
+ */
 export default async function handler(req: any, res: any) {
-  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
 
@@ -17,30 +15,27 @@ export default async function handler(req: any, res: any) {
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .select('*')
-      .order('addedAt', { ascending: false });
+      .order('addedat', { ascending: false });
 
     if (error) {
-      console.error('Database Error:', error);
-      // If table doesn't exist, return empty array instead of 500
-      if (error.code === '42P01') {
-        return res.status(200).json([]);
-      }
+      console.error('Database Fetch Error:', error);
       return res.status(500).json({ error: 'DATABASE_ERROR', details: error.message });
     }
 
+    // فرنٹ اینڈ کے لیے ڈیٹا کو میپ کریں (addedat -> addedAt)
     const groups = (data || []).map((item: any) => ({
       id: item.id?.toString() || Math.random().toString(),
       name: item.name || 'Untitled',
       link: item.link || '',
       category: item.category || 'Other',
       description: item.description || '',
-      addedAt: item.addedAt || new Date().toISOString(),
+      addedAt: item.addedat || item.addedAt || new Date().toISOString(),
       clicks: Number(item.clicks) || 0
     }));
 
     return res.status(200).json(groups);
   } catch (err: any) {
-    console.error('Server Exception:', err);
+    console.error('System Exception:', err);
     return res.status(500).json({ error: 'SERVER_EXCEPTION', message: err.message });
   }
 }

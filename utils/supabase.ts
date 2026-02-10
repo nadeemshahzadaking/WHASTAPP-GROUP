@@ -4,7 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * 🛠️ SUPABASE CONNECTION UTILITY
  * ------------------------------
- * IMPORTANT: You must create the table in your Supabase SQL Editor:
+ * This client is used by both the frontend and the backend API routes.
+ * 
+ * REQUIRED SQL (Execute in Supabase SQL Editor):
  * 
  * create table whatsapp_groups (
  *   id bigint primary key generated always as identity,
@@ -15,10 +17,18 @@ import { createClient } from '@supabase/supabase-js';
  *   addedAt timestamp with time zone default now(),
  *   clicks bigint default 0
  * );
+ * 
+ * -- Enable RLS
+ * alter table whatsapp_groups enable row level security;
+ * 
+ * -- Create Policies
+ * create policy "Public Access" on whatsapp_groups for select using (true);
+ * create policy "Public Insert" on whatsapp_groups for insert with check (true);
+ * create policy "Public Update Clicks" on whatsapp_groups for update using (true);
  */
 
 const getEnvVar = (key: string): string => {
-  // 1. Try process.env (Server-side/Vercel)
+  // 1. Try process.env (Server-side/Node.js/Vercel)
   if (typeof process !== 'undefined' && process.env && process.env[key]) {
     return process.env[key] as string;
   }
@@ -35,11 +45,15 @@ const getEnvVar = (key: string): string => {
   return '';
 };
 
-const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
-const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY');
+// Check for both NEXT_PUBLIC prefix (common in Vercel/Next.js) and plain keys
+const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL') || getEnvVar('SUPABASE_URL');
+const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY');
 
-// Initialize client with fallbacks to prevent crash during build/init
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("CRITICAL: Supabase credentials not found. Set SUPABASE_URL and SUPABASE_ANON_KEY.");
+}
+
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder-url.supabase.co', 
-  supabaseAnonKey || 'placeholder-key'
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder'
 );

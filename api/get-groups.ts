@@ -1,8 +1,10 @@
+
 import { createClient } from '@supabase/supabase-js';
 
+// Vercel Serverless functions (Backend) میں process.env ہی استعمال ہوتا ہے
 const supabase = createClient(
-  process.env.SUPABASE_URL || '',
-  process.env.SUPABASE_ANON_KEY || ''
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 );
 
 export default async function handler(req: any, res: any) {
@@ -13,9 +15,8 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // Check if keys are present
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-      return res.status(500).json({ error: 'Supabase keys are missing in environment variables.' });
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return res.status(500).json({ error: 'Supabase URL is not defined in Backend environment.' });
     }
 
     const { data, error } = await supabase
@@ -23,13 +24,7 @@ export default async function handler(req: any, res: any) {
       .select('*')
       .order('addedat', { ascending: false });
 
-    if (error) {
-      console.error('Supabase Error:', error);
-      return res.status(500).json({ 
-        error: error.message, 
-        hint: 'Please check your RLS policies in Supabase dashboard.' 
-      });
-    }
+    if (error) throw error;
 
     const formatted = (data || []).map((item: any) => ({
       id: item.id?.toString(),
@@ -43,7 +38,6 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json(formatted);
   } catch (err: any) {
-    console.error('API Server Error:', err);
-    return res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }

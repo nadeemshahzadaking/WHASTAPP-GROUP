@@ -1,9 +1,11 @@
 
-import { supabase } from '../utils/supabase';
+import { createClient } from '@supabase/supabase-js';
 
-/**
- * 🖱️ UPDATE CLICK COUNT API
- */
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+);
+
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -17,29 +19,21 @@ export default async function handler(req: any, res: any) {
     if (typeof body === 'string') body = JSON.parse(body);
     const { link } = body;
 
-    if (!link) return res.status(400).json({ error: 'Link is required' });
-
-    // پہلے موجودہ کلکس حاصل کریں
-    const { data: current, error: fetchError } = await supabase
+    const { data: current } = await supabase
       .from('whatsapp_groups')
       .select('clicks')
       .eq('link', link)
       .maybeSingle();
-
-    if (fetchError) throw fetchError;
     
     if (current) {
-      const { error: updateError } = await supabase
+      await supabase
         .from('whatsapp_groups')
         .update({ clicks: (Number(current.clicks) || 0) + 1 })
         .eq('link', link);
-      
-      if (updateError) throw updateError;
     }
 
     return res.status(200).json({ success: true });
   } catch (err: any) {
-    console.error('Click Track Error:', err);
     return res.status(500).json({ error: 'TRACKING_FAILED' });
   }
 }

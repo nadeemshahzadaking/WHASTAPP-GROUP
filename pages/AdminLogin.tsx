@@ -18,12 +18,12 @@ const AdminLogin: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
-  // Hard-coded or env-based admin credentials
+  // Safe credential check for browser environment
   const ADMIN_CREDS = {
-    name: process.env.ADMIN_NAME || 'Admin Master',
-    username: process.env.ADMIN_USERNAME || 'admin',
-    email: process.env.ADMIN_EMAIL || 'mrbadshahoftheking@gmail.com',
-    password: process.env.ADMIN_PASSWORD || '9999'
+    name: 'Admin Master',
+    username: 'admin',
+    email: 'mrbadshahoftheking@gmail.com',
+    password: '9999'
   };
 
   const generateCaptcha = () => {
@@ -42,10 +42,10 @@ const AdminLogin: React.FC = () => {
   // Strict Validation Rules
   const validations = useMemo(() => ({
     name: formData.name.trim().length > 0,
-    username: /^[a-z]+$/.test(formData.username), // Only lowercase English, no spaces
-    email: /^[^\s@]+@gmail\.com$/.test(formData.email), // Gmail only, no spaces
-    password: formData.password.length > 0 && !/\s/.test(formData.password), // Any char, no spaces
-    captcha: formData.captchaInput === captchaCode // Exact match
+    username: /^[a-z]+$/.test(formData.username),
+    email: /^[^\s@]+@gmail\.com$/.test(formData.email),
+    password: formData.password.length > 0 && !/\s/.test(formData.password),
+    captcha: formData.captchaInput === captchaCode
   }), [formData, captchaCode]);
 
   const progress = useMemo(() => {
@@ -70,8 +70,8 @@ const AdminLogin: React.FC = () => {
         navigate('/admin-dashboard');
       }, 2000);
     } else {
-      // Security protocol: Any mismatch results in direct kick-back to home
       setError(true);
+      setLoading(false);
       setTimeout(() => {
         navigate('/');
       }, 1500);
@@ -84,7 +84,6 @@ const AdminLogin: React.FC = () => {
         <BackButton />
         
         <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden relative">
-          {/* Top Progress Bar */}
           <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-50">
             <div 
               className="h-full bg-[#25D366] transition-all duration-500 shadow-[0_0_10px_rgba(37,211,102,0.5)]" 
@@ -96,7 +95,7 @@ const AdminLogin: React.FC = () => {
             <div className="absolute top-4 right-8 font-black text-xs text-white/20 tracking-widest uppercase">
               Auth System v3.0
             </div>
-            <div className="text-5xl mb-4 animate-float">🔐</div>
+            <div className="text-5xl mb-4">🔐</div>
             <h1 className="text-3xl font-black tracking-tighter uppercase">Administrator Access</h1>
             <p className="text-slate-400 text-xs font-bold mt-2 tracking-widest opacity-60">VERIFYING PERMISSIONS</p>
           </div>
@@ -108,7 +107,6 @@ const AdminLogin: React.FC = () => {
               </div>
             )}
 
-            {/* Step-by-Step Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
@@ -130,7 +128,7 @@ const AdminLogin: React.FC = () => {
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value.toLowerCase().replace(/\s/g, '')})}
                   className={`w-full px-5 py-3.5 rounded-2xl border-2 outline-none transition-all font-bold text-sm ${validations.username ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900'}`}
-                  placeholder="admin-only-lowercase"
+                  placeholder="admin-only"
                 />
               </div>
             </div>
@@ -194,13 +192,6 @@ const AdminLogin: React.FC = () => {
               )}
             </button>
           </form>
-        </div>
-        
-        <div className="mt-8 flex flex-col items-center gap-2 opacity-30">
-          <p className="text-center text-slate-400 text-[10px] font-black uppercase tracking-widest">Global Directory Infrastructure</p>
-          <div className="flex gap-1">
-             {[1,2,3,4,5,6].map(i => <div key={i} className="w-1 h-1 bg-slate-400 rounded-full"></div>)}
-          </div>
         </div>
       </div>
     </div>

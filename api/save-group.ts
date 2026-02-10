@@ -10,16 +10,28 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    // Robust body parsing
+    let body = req.body;
+    if (typeof body === 'string') {
+      try {
+        body = JSON.parse(body);
+      } catch (e) {
+        return res.status(400).json({ error: 'Invalid JSON body' });
+      }
+    }
+
     const { name, link, category, description, addedAt } = body;
 
     if (!name || !link || !category) {
-      return res.status(400).json({ error: 'Missing required fields: name, link, or category.' });
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        received: { name: !!name, link: !!link, category: !!category }
+      });
     }
 
     // Basic URL validation
     if (!link.includes('chat.whatsapp.com')) {
-      return res.status(400).json({ error: 'Invalid WhatsApp link format.' });
+      return res.status(400).json({ error: 'Invalid WhatsApp link format. Links must start with https://chat.whatsapp.com/' });
     }
 
     const { data, error } = await supabase
@@ -37,7 +49,7 @@ export default async function handler(req: any, res: any) {
       .select();
 
     if (error) {
-      console.error('Supabase Save Error:', error);
+      console.error('Supabase Insertion Error:', error);
       
       // Handle unique constraint (Link already exists)
       if (error.code === '23505') {
@@ -47,14 +59,14 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ 
         error: 'DATABASE_INSERT_FAILED', 
         details: error.message,
-        hint: error.hint,
-        code: error.code
+        code: error.code,
+        hint: error.hint
       });
     }
 
     return res.status(200).json({ success: true, data });
   } catch (err: any) {
-    console.error('API Exception:', err);
+    console.error('API Server Exception:', err);
     return res.status(500).json({ 
       error: 'API_INTERNAL_ERROR', 
       message: err.message 

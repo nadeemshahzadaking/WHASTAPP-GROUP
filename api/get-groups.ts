@@ -6,23 +6,23 @@ import { supabase } from '../utils/supabase';
  */
 export default async function handler(req: any, res: any) {
   try {
+    // Verify configuration
+    if (!supabase) {
+      return res.status(500).json({ error: 'Supabase client not initialized' });
+    }
+
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .select('*')
       .order('addedAt', { ascending: false });
 
     if (error) {
-      // If table doesn't exist, Supabase returns error code '42P01'
-      if (error.code === '42P01') {
-        console.warn("Table 'whatsapp_groups' not found. Returning empty list.");
-        return res.status(200).json([]);
-      }
-      
       console.error('Supabase Error:', error);
       return res.status(500).json({ 
         error: 'DATABASE_ERROR',
         details: error.message,
-        code: error.code
+        code: error.code,
+        hint: 'Check if the "whatsapp_groups" table exists in your Supabase project.'
       });
     }
 
@@ -38,7 +38,10 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json(groups);
   } catch (err: any) {
-    console.error('System Error:', err);
-    return res.status(500).json({ error: 'SERVER_EXCEPTION', message: err.message });
+    console.error('System Exception:', err);
+    return res.status(500).json({ 
+      error: 'SERVER_EXCEPTION', 
+      message: err.message 
+    });
   }
 }

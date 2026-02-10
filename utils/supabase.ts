@@ -4,8 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * 🛠️ SUPABASE CONNECTION UTILITY
  * ------------------------------
- * This utility connects to your database using the keys provided in .env.local
- * 
  * IMPORTANT: You must create the table in your Supabase SQL Editor:
  * 
  * create table whatsapp_groups (
@@ -20,12 +18,12 @@ import { createClient } from '@supabase/supabase-js';
  */
 
 const getEnvVar = (key: string): string => {
-  // Try Vercel/Node process.env first
+  // 1. Try process.env (Server-side/Vercel)
   if (typeof process !== 'undefined' && process.env && process.env[key]) {
     return process.env[key] as string;
   }
   
-  // Try Vite/Meta fallback
+  // 2. Try import.meta.env (Client-side/Vite)
   try {
     // @ts-ignore
     if (typeof import.meta !== 'undefined' && import.meta.env) {
@@ -40,12 +38,8 @@ const getEnvVar = (key: string): string => {
 const supabaseUrl = getEnvVar('NEXT_PUBLIC_SUPABASE_URL');
 const supabaseAnonKey = getEnvVar('NEXT_PUBLIC_SUPABASE_ANON_KEY');
 
-// Debugging logs for server-side (Vercel Logs)
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error("CRITICAL: Supabase keys are missing! Check Vercel Environment Variables or .env.local");
-}
-
+// Initialize client with fallbacks to prevent crash during build/init
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseAnonKey || 'placeholder'
+  supabaseUrl || 'https://placeholder-url.supabase.co', 
+  supabaseAnonKey || 'placeholder-key'
 );

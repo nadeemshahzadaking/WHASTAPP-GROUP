@@ -65,7 +65,8 @@ const Trending: React.FC = () => {
               <div className="absolute -top-6 -left-6 w-16 h-16 bg-black text-white rounded-[1.5rem] flex items-center justify-center font-black text-2xl z-30 shadow-2xl border-4 border-white group-hover/parent:scale-110 group-hover/parent:bg-rose-500 transition-all">
                 #{index + 1}
               </div>
-              <GroupCard group={group} styleId={(index % 10) + 1} />
+              {/* Removed invalid styleId prop */}
+              <GroupCard group={group} />
             </div>
           ))}
         </div>

@@ -8,7 +8,7 @@ import BackButton from '../components/BackButton';
 
 const GroupDetails: React.FC = () => {
   const { id } = useParams();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [group, setGroup] = useState<WhatsAppGroup | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,9 @@ const GroupDetails: React.FC = () => {
           category: data.category,
           description: data.description,
           addedAt: data.addedat,
-          clicks: data.clicks
+          clicks: data.clicks,
+          custom_color: data.custom_color,
+          image_url: data.image_url
         });
       } catch (err) {
         console.error(err);
@@ -51,31 +53,54 @@ const GroupDetails: React.FC = () => {
   const handleJoin = async () => {
     if (!group) return;
     try {
-      await supabase
-        .from('whatsapp_groups')
-        .update({ clicks: (Number(group.clicks) || 0) + 1 })
-        .eq('id', group.id);
+      await supabase.rpc('increment_clicks', { row_id: group.id });
     } catch (e) {}
     window.open(group.link, '_blank', 'noopener,noreferrer');
   };
 
+  const handleShare = () => {
+    if (!group) return;
+    const siteUrl = window.location.origin;
+    const groupPageUrl = window.location.href;
+    const msg = `🔥 *${group.name}*\n📁 Category: ${t.categories[group.category] || group.category}\n\nJoin Now: ${group.link}\nWebsite: ${siteUrl}\n\nJoin this active community!`;
+    
+    if (navigator.share) {
+      navigator.share({ title: group.name, text: msg, url: groupPageUrl });
+    } else {
+      navigator.clipboard.writeText(msg);
+      alert(language === 'ur' ? 'لنک کاپی ہو گیا!' : 'Link copied!');
+    }
+  };
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-16 h-16 border-4 border-[#25D366] border-t-transparent rounded-full animate-spin"></div>
     </div>
   );
 
   if (!group) return null;
 
+  const headerStyle = group.custom_color 
+    ? { backgroundColor: group.custom_color }
+    : { background: 'linear-gradient(to bottom right, #128C7E, #075E54)' };
+
   return (
-    <div className="max-w-4xl mx-auto px-6 py-12">
+    <div className="max-w-4xl mx-auto px-6 py-12 page-fade">
       <BackButton />
       
       <div className="bg-white rounded-[4rem] shadow-2xl overflow-hidden border border-slate-100">
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-800 p-16 text-center text-white relative">
-          <div className="absolute top-0 right-0 p-10 opacity-10 text-9xl font-black">WA</div>
-          <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-2xl border-4 border-white/30">
-            💬
+        <div style={headerStyle} className="p-16 text-center text-white relative">
+          <button 
+            onClick={handleShare}
+            className="absolute top-10 right-10 bg-white/20 p-4 rounded-full hover:bg-white/40 transition-all shadow-lg"
+          >
+            📤
+          </button>
+
+          <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-2xl border-4 border-white/30 overflow-hidden">
+            {group.image_url ? (
+              <img src={group.image_url} alt={group.name} className="w-full h-full object-cover" />
+            ) : '💬'}
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter uppercase leading-tight urdu-font">{group.name}</h1>
           <div className="flex flex-wrap justify-center gap-4 mt-8">
@@ -84,11 +109,24 @@ const GroupDetails: React.FC = () => {
           </div>
         </div>
 
+        {/* Large Display Image Section - Main request fulfilled */}
+        {group.image_url && (
+          <div className="px-8 md:px-16 pt-12">
+            <div className="w-full rounded-[3rem] overflow-hidden shadow-2xl border-8 border-slate-50 bg-slate-50">
+               <img 
+                src={group.image_url} 
+                alt={group.name} 
+                className="w-full h-auto max-h-[600px] object-contain mx-auto" 
+               />
+            </div>
+          </div>
+        )}
+
         <div className={`p-12 space-y-12 ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}>
           <div className="space-y-6">
             <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.3em]">{t.descriptionLabel}</h2>
             <p className="text-2xl font-bold text-slate-800 leading-relaxed urdu-font whitespace-pre-wrap">
-              {group.description || 'No detailed description provided for this community.'}
+              {group.description || 'اس واٹس ایپ گروپ کی کوئی تفصیلی معلومات فراہم نہیں کی گئیں۔'}
             </p>
           </div>
 
@@ -100,7 +138,7 @@ const GroupDetails: React.FC = () => {
                 </div>
                 <div className="bg-slate-50 p-6 rounded-3xl">
                   <span className="block text-[10px] font-black text-slate-400 uppercase mb-2">Category</span>
-                  <span className="font-black text-slate-900">{group.category}</span>
+                  <span className="font-black text-slate-900">{t.categories[group.category]}</span>
                 </div>
              </div>
 

@@ -32,6 +32,8 @@ export interface WhatsAppGroup {
   addedAt: string;
   clicks: number;
   approved?: boolean;
+  custom_color?: string;
+  image_url?: string;
 }
 
 export interface Translations {
@@ -47,6 +49,14 @@ export interface Translations {
   trendingLink: string;
   aboutLink: string;
   officialLink: string;
+  // Added missing translation keys
+  aboutTitle: string;
+  aboutContent: string;
+  officialTitle: string;
+  officialSub: string;
+  safetyTitle: string;
+  safetyMessage: string;
+  closeBtn: string;
   categories: Record<Category, string>;
   allCategories: string;
   groupsListTitle: string;

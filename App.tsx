@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 // @ts-ignore
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -18,10 +18,21 @@ import SecurityCheck from './pages/SecurityCheck';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProductPromoBox from './components/ProductPromoBox';
+import LoaderGallery from './pages/LoaderGallery';
+
+// ScrollToTop Component to fix the page position issue
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
 
 const AppContent: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col font-sans relative selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen flex flex-col font-sans relative selection:bg-[#25D366] selection:text-white page-fade">
+      <ScrollToTop />
       <Navbar />
       
       <div className="max-w-7xl mx-auto w-full px-4">
@@ -44,23 +55,23 @@ const AppContent: React.FC = () => {
           <Route path="/security-check" element={<SecurityCheck />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/loader-test" element={<LoaderGallery />} />
         </Routes>
       </main>
 
-      <footer className="bg-black py-32 text-center text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 space-y-16">
-          <div className="flex flex-wrap justify-center gap-12 mb-8">
-            <Link to="/" className="text-sm font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Home</Link>
-            <Link to="/groups" className="text-sm font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Browse</Link>
-            <Link to="/trending" className="text-sm font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Trending</Link>
-            <Link to="/add" className="text-sm font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Add Group</Link>
+      <footer className="bg-slate-900 pt-20 pb-10 text-center text-slate-500">
+        <div className="max-w-7xl mx-auto px-4 space-y-12">
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            <Link to="/" className="text-xs font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Home</Link>
+            <Link to="/groups" className="text-xs font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Browse</Link>
+            <Link to="/trending" className="text-xs font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Trending</Link>
+            <Link to="/add" className="text-xs font-black text-white hover:text-[#25D366] transition-all uppercase tracking-widest">Add Group</Link>
           </div>
           
-          <div className="pt-16 border-t border-white/10">
-            <div className="text-5xl font-black text-white mb-6 tracking-tighter">WHATSAPP HUB</div>
-            <p className="text-[10px] font-bold text-slate-600 max-w-lg mx-auto leading-relaxed uppercase tracking-[0.4em] opacity-80">
-              Professional Global Directory for Secure WhatsApp Communities.
-              © 2026 All Rights Reserved.
+          <div className="pt-10 border-t border-white/5">
+            <div className="text-2xl font-black text-white mb-4 tracking-tighter">WHATSAPP HUB</div>
+            <p className="text-[8px] font-bold text-slate-600 max-w-lg mx-auto leading-relaxed uppercase tracking-[0.4em] opacity-80 urdu-font">
+              © 2026 واٹس ایپ ہب - تمام حقوق محفوظ ہیں۔
             </p>
           </div>
         </div>

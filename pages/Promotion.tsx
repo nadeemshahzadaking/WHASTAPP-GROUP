@@ -5,9 +5,10 @@ import BackButton from '../components/BackButton';
 import LanguageSelector from '../components/LanguageSelector';
 
 /**
- * 🚀 PROMOTION PAGE (UPDATED)
+ * 🚀 PROMOTION PAGE (FULLY DIRECT WORKFLOW)
  * -----------------
- * Fixed Email sending logic and direct email button interaction.
+ * This version ensures the user is taken to their email client
+ * and provides clear instructions until the action is finalized.
  */
 const Promotion: React.FC = () => {
   const { t, language } = useLanguage();
@@ -22,7 +23,7 @@ const Promotion: React.FC = () => {
   });
 
   const [error, setError] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const promoTypes = [
     'WhatsApp Group (Standard)',
@@ -49,7 +50,6 @@ const Promotion: React.FC = () => {
     'Other (Specify Below)'
   ];
 
-  // Relaxed Email Validation
   const validations = useMemo(() => ({
     name: formData.name.trim().length >= 3,
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.userEmail),
@@ -62,88 +62,100 @@ const Promotion: React.FC = () => {
     return (validCount / 4) * 100;
   }, [validations]);
 
-  const handleSendEmail = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAction = (isDirect = false) => {
     setError('');
     
-    if (!validations.email) {
-      setError(language === 'ur' ? 'براہ کرم درست ای میل ایڈریس درج کریں۔' : 'Please enter a valid email address.');
-      return;
-    }
-
-    if (!validations.name || !validations.type || !validations.details) {
-      setError(language === 'ur' ? 'تمام ضروری خانے پُر کریں۔' : 'Please fill all required fields.');
-      return;
+    // If it's the main form submission
+    if (!isDirect) {
+      if (!validations.email) {
+        setError(language === 'ur' ? 'براہ کرم درست ای میل ایڈریس درج کریں۔' : 'Please enter a valid email address.');
+        return;
+      }
+      if (!validations.name || !validations.type || !validations.details) {
+        setError(language === 'ur' ? 'تمام ضروری خانے پُر کریں۔' : 'Please fill all required fields.');
+        return;
+      }
     }
 
     const type = formData.promoType.includes('Other') ? formData.customType : formData.promoType;
-    const subject = encodeURIComponent(`PROMOTION REQUEST: ${type}`);
+    const subject = encodeURIComponent(isDirect ? `Ad Inquiry: Quick Contact` : `PROMOTION REQUEST: ${type}`);
     const body = encodeURIComponent(
-      `--- Promotion Request Form ---\n\n` +
-      `User Name: ${formData.name}\n` +
-      `User Contact: ${formData.userEmail}\n` +
-      `Target Type: ${type}\n` +
-      `Description: ${formData.details}\n\n` +
-      `Submitted via Promotion Dashboard (${language.toUpperCase()})`
+      isDirect 
+      ? `Hello, I want to inquire about advertisements and promotion packages.`
+      : `--- Promotion Request Form ---\n\n` +
+        `User Name: ${formData.name}\n` +
+        `User Contact: ${formData.userEmail}\n` +
+        `Target Type: ${type}\n` +
+        `Description: ${formData.details}\n\n` +
+        `Please finalize and send this email to complete your request.`
     );
 
-    // Opening email client
+    // Opening email client directly
     window.location.href = `mailto:${adminEmail}?subject=${subject}&body=${body}`;
-    setIsSuccess(true);
+    
+    // Show confirmation step to ensure they actually send it
+    if (!isDirect) setShowConfirmation(true);
   };
 
-  const handleDirectEmail = () => {
-    window.location.href = `mailto:${adminEmail}?subject=Direct Ad Inquiry`;
-  };
-
-  if (isSuccess) {
+  if (showConfirmation) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-20 text-center animate-in fade-in duration-500">
-        <div className="bg-white p-16 rounded-[3rem] shadow-2xl border border-[#25D366]/20">
-          <div className="text-8xl mb-8">📩</div>
-          <h2 className="text-3xl font-black text-slate-900 mb-4 urdu-font uppercase">
-            {language === 'ur' ? 'درخواست بھیج دی گئی ہے!' : 'Request Initiated!'}
+      <div className="max-w-4xl mx-auto px-4 py-20 text-center animate-in fade-in zoom-in duration-500">
+        <div className="bg-white p-12 md:p-20 rounded-[3rem] shadow-2xl border-4 border-[#25D366]">
+          <div className="text-8xl mb-8 animate-bounce">📤</div>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 urdu-font uppercase">
+            {language === 'ur' ? 'آخری مرحلہ!' : 'Final Step!'}
           </h2>
-          <p className="text-slate-500 font-bold mb-10 text-lg urdu-font">
-            {language === 'ur' ? 'آپ کے ای میل ایپ میں معلومات لوڈ کر دی گئی ہیں۔ براہ کرم وہاں سے "سینڈ" بٹن دبائیں تاکہ ہمیں ای میل مل جائے۔' : 'Please complete the action in your email app to finish sending.'}
+          <p className="text-slate-600 font-bold mb-10 text-xl leading-relaxed urdu-font">
+            {language === 'ur' 
+              ? 'آپ کی معلومات ای میل ایپ میں لوڈ کر دی گئی ہیں۔ اگر ای میل ایپ نہیں کھلی تو نیچے والے بٹن پر کلک کریں اور وہاں سے "سینڈ" ضرور دبائیں تاکہ ہمیں موصول ہو جائے۔' 
+              : 'Your info is loaded in your email app. If it didn\'t open, click below and make sure to press "SEND" inside the app.'}
           </p>
-          <button 
-            onClick={() => setIsSuccess(false)}
-            className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-transform"
-          >
-            {language === 'ur' ? 'دوبارہ فارم دیکھیں' : 'Back to Form'}
-          </button>
+          
+          <div className="flex flex-col gap-4">
+            <button 
+              onClick={() => handleAction()}
+              className="bg-[#25D366] text-white px-10 py-5 rounded-2xl font-black text-xl uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-green-100"
+            >
+              {language === 'ur' ? 'ای میل ایپ دوبارہ کھولیں' : 'Re-open Email App'}
+            </button>
+            <button 
+              onClick={() => setShowConfirmation(false)}
+              className="text-slate-400 font-black text-xs uppercase hover:text-slate-900 transition-colors mt-4"
+            >
+              {language === 'ur' ? 'فارم میں تبدیلی کریں' : 'Edit Form Details'}
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 relative">
+    <div className="max-w-4xl mx-auto px-4 py-12 relative page-fade">
       <div className="absolute top-0 right-4">
         <LanguageSelector />
       </div>
 
       <BackButton />
       
-      <div className="bg-white rounded-[3rem] shadow-2xl overflow-hidden border border-slate-100 relative">
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-50">
+      <div className="bg-white rounded-[3.5rem] shadow-2xl overflow-hidden border border-slate-100 relative">
+        <div className="absolute top-0 left-0 w-full h-2 bg-slate-100">
           <div 
-            className="h-full bg-[#25D366] transition-all duration-700 shadow-[0_0_15px_rgba(37,211,102,0.4)]" 
+            className="h-full bg-[#25D366] transition-all duration-700" 
             style={{ width: `${progress}%` }}
           ></div>
         </div>
 
-        <div className="bg-slate-900 p-12 text-center text-white relative">
-          <div className="text-7xl mb-6 inline-block animate-float">📊</div>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter uppercase">{t.dir === 'rtl' ? 'پروموشن پینل' : 'PROMOTION HUB'}</h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto font-medium leading-relaxed urdu-font">
-            آپ کے کاروبار یا گروپ کو ٹاپ پر دکھانے کے لیے تفصیلات بھریں۔
+        <div className="bg-slate-900 p-12 text-center text-white">
+          <div className="text-7xl mb-6">📊</div>
+          <h1 className="text-4xl md:text-6xl font-black mb-4 tracking-tighter uppercase">{t.dir === 'rtl' ? 'پروموشن پینل' : 'PROMOTION HUB'}</h1>
+          <p className="text-slate-400 text-lg font-medium urdu-font">
+            فارم بھریں اور ہمیں ای میل کے ذریعے سینڈ کریں۔
           </p>
         </div>
 
         <div className={`p-8 md:p-14 space-y-12 ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}>
-          <form onSubmit={handleSendEmail} className="space-y-8">
+          <form onSubmit={(e) => { e.preventDefault(); handleAction(); }} className="space-y-8">
             {error && (
               <div className="bg-red-50 text-red-600 p-5 rounded-2xl text-sm font-black border border-red-100 text-center animate-shake">
                 ⚠️ {error}
@@ -159,20 +171,20 @@ const Promotion: React.FC = () => {
                     type="text" 
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className={`w-full px-6 py-4 rounded-2xl border-2 outline-none transition-all font-bold ${validations.name ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900 bg-slate-50/50'}`} 
-                    placeholder={language === 'ur' ? 'اپنا پورا نام درج کریں' : 'Enter full name'}
+                    className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-slate-900 outline-none bg-slate-50/50 font-bold transition-all" 
+                    placeholder={language === 'ur' ? 'اپنا نام لکھیں' : 'Full name'}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">{t.dir === 'rtl' ? 'آپ کی ای میل' : 'Your Email'} *</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">{t.dir === 'rtl' ? 'رابطہ ای میل' : 'Your Email'} *</label>
                   <input 
                     required
                     type="email" 
                     value={formData.userEmail}
-                    onChange={(e) => setFormData({...formData, userEmail: e.target.value.trim()})}
-                    className={`w-full px-6 py-4 rounded-2xl border-2 outline-none transition-all font-bold ${validations.email ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900 bg-slate-50/50'}`} 
-                    placeholder="example@gmail.com"
+                    onChange={(e) => setFormData({...formData, userEmail: e.target.value})}
+                    className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-slate-900 outline-none bg-slate-50/50 font-bold transition-all" 
+                    placeholder="example@mail.com"
                   />
                 </div>
               </div>
@@ -184,7 +196,7 @@ const Promotion: React.FC = () => {
                     required
                     value={formData.promoType}
                     onChange={(e) => setFormData({...formData, promoType: e.target.value})}
-                    className={`w-full px-6 py-4 rounded-2xl border-2 outline-none transition-all font-bold ${validations.type ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900 bg-slate-50/50'}`}
+                    className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-slate-900 outline-none bg-slate-50/50 font-bold transition-all"
                   >
                     <option value="">{t.selectCategory}</option>
                     {promoTypes.map(type => <option key={type} value={type}>{type}</option>)}
@@ -192,14 +204,14 @@ const Promotion: React.FC = () => {
                 </div>
 
                 {formData.promoType.includes('Other') && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Custom Category Name</label>
+                  <div className="animate-in slide-in-from-top-2">
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">Specify Category</label>
                     <input 
                       type="text"
                       value={formData.customType}
                       onChange={(e) => setFormData({...formData, customType: e.target.value})}
-                      className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 outline-none focus:border-slate-900 bg-slate-50/50 transition-all font-bold" 
-                      placeholder="e.g. TikTok Ad"
+                      className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-slate-900 outline-none bg-slate-50/50 font-bold" 
+                      placeholder="e.g. Website Ad"
                     />
                   </div>
                 )}
@@ -207,46 +219,40 @@ const Promotion: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">{t.dir === 'rtl' ? 'مزید تفصیلات' : 'Details'} *</label>
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 ml-1">{t.dir === 'rtl' ? 'تفصیلات' : 'Details'} *</label>
               <textarea 
                 required
-                rows={5}
+                rows={4}
                 value={formData.details}
                 onChange={(e) => setFormData({...formData, details: e.target.value})}
-                className={`w-full px-6 py-4 rounded-2xl border-2 outline-none transition-all font-bold resize-none ${validations.details ? 'border-green-100 bg-green-50/20' : 'border-slate-50 focus:border-slate-900 bg-slate-50/50'}`}
-                placeholder={language === 'ur' ? 'اپنے کاروبار یا لنک کے بارے میں تفصیل لکھیں...' : 'Enter promotion details here...'}
+                className="w-full px-6 py-4 rounded-2xl border-2 border-slate-50 focus:border-slate-900 outline-none bg-slate-50/50 font-bold resize-none transition-all"
+                placeholder={language === 'ur' ? 'یہاں تفصیل لکھیں...' : 'Tell us more...'}
               ></textarea>
             </div>
 
-            <div className="pt-6">
-              <button 
-                type="submit"
-                className="w-full bg-[#25D366] text-white py-6 rounded-[2rem] font-black text-xl hover:bg-[#128C7E] shadow-2xl shadow-green-100 transition-all active:scale-95 flex items-center justify-center gap-4 uppercase"
-              >
-                <span>{language === 'ur' ? 'درخواست سینڈ کریں' : 'SEND REQUEST'}</span>
-                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-              </button>
-            </div>
+            <button 
+              type="submit"
+              className="w-full bg-[#25D366] text-white py-6 rounded-[2rem] font-black text-xl hover:bg-black transition-all active:scale-95 shadow-xl shadow-green-100 flex items-center justify-center gap-4 uppercase"
+            >
+              <span>{language === 'ur' ? 'ای میل ایپ میں جائیں' : 'GO TO EMAIL APP'}</span>
+              <span className="text-2xl">➔</span>
+            </button>
           </form>
 
-          {/* Direct Email Box - Fully Fixed Interaction */}
-          <div className="flex flex-col items-center justify-center pt-10 border-t border-slate-100 gap-6 text-center">
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] urdu-font">
-               براہ راست رابطہ کریں
-            </p>
+          {/* Quick Action Gmail Box */}
+          <div className="pt-10 border-t border-slate-100 flex flex-col items-center">
+            <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] mb-8 urdu-font">یا فوری رابطہ کریں</p>
             
             <button 
-              onClick={handleDirectEmail}
-              className="group flex flex-col md:flex-row items-center gap-6 bg-slate-50 border border-slate-100 px-10 py-6 rounded-[2.5rem] hover:border-[#25D366] hover:bg-white transition-all shadow-sm active:scale-95 w-full md:w-auto"
+              onClick={() => handleAction(true)}
+              className="group w-full max-w-lg bg-slate-50 hover:bg-white border-2 border-slate-50 hover:border-[#25D366] p-6 rounded-[2.5rem] flex items-center gap-6 transition-all shadow-sm active:scale-95"
             >
-              <div className="text-5xl group-hover:scale-110 transition-transform">📩</div>
-              <div className="flex flex-col items-center md:items-start">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{t.dir === 'rtl' ? 'ای میل ایڈریس' : 'EMAIL ADDRESS'}</span>
-                <span className="font-bold text-slate-800 text-lg tracking-tight">{adminEmail}</span>
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-4xl shadow-md group-hover:bg-[#25D366] transition-colors">📩</div>
+              <div className="flex-1 text-center md:text-right">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{t.dir === 'rtl' ? 'ہمارا ای میل' : 'OUR EMAIL'}</p>
+                <p className="text-lg font-black text-slate-800 break-all">{adminEmail}</p>
               </div>
-              <div className="flex w-14 h-14 bg-white rounded-full items-center justify-center border border-slate-100 group-hover:bg-[#25D366] group-hover:text-white transition-all shadow-md">
-                <span className="text-2xl font-bold">→</span>
-              </div>
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl font-bold border border-slate-100 group-hover:translate-x-1 transition-transform">→</div>
             </button>
           </div>
         </div>

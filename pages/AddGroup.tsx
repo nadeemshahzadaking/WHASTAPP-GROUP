@@ -35,7 +35,8 @@ const AddGroup: React.FC = () => {
           category: formData.category,
           description: formData.description.trim(),
           addedat: new Date().toISOString(),
-          clicks: 0
+          clicks: 0,
+          approved: false // نیا گروپ پہلے منظوری کے لیے جائے گا
         }]);
 
       if (error) throw error;
@@ -52,7 +53,8 @@ const AddGroup: React.FC = () => {
       <div className="max-w-xl mx-auto px-4 py-24 text-center">
         <div className="bg-white p-12 rounded-[3rem] shadow-2xl border border-green-100">
           <div className="text-7xl mb-6">🎉</div>
-          <h2 className="text-3xl font-black text-slate-900 mb-4">{t.successTitle}</h2>
+          <h2 className="text-3xl font-black text-slate-900 mb-4">گروپ جمع ہو گیا!</h2>
+          <p className="text-slate-500 font-bold mb-8">ایڈمن کی منظوری کے بعد آپ کا گروپ لسٹ میں نظر آئے گا۔</p>
           <button
             onClick={() => setIsSubmitted(false)}
             className="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-lg shadow-xl shadow-green-100"

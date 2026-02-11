@@ -25,6 +25,7 @@ const GroupsList: React.FC = () => {
         const { data, error } = await supabase
           .from('whatsapp_groups')
           .select('*')
+          .eq('approved', true) // سیکیورٹی فلٹر
           .order('addedat', { ascending: false });
 
         if (error) throw error;

@@ -17,10 +17,11 @@ const Home: React.FC = () => {
     const loadGroups = async () => {
       try {
         setLoading(true);
-        // براہ راست سپربیس سے ڈیٹا لینا
+        // صرف 'approved' گروپس دکھانے کے لیے فلٹر لگایا گیا ہے
         const { data, error } = await supabase
           .from('whatsapp_groups')
           .select('*')
+          .eq('approved', true) // سیکیورٹی فلٹر
           .order('addedat', { ascending: false })
           .limit(15);
 

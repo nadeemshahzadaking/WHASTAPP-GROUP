@@ -1,4 +1,5 @@
 
+// Add 'ro' to supported languages
 export type Language = 'en' | 'ur' | 'ro';
 export type Category = 
   | 'Education' | 'Jobs' | 'Business' | 'Islamic' | 'Entertainment' 
@@ -30,6 +31,7 @@ export interface WhatsAppGroup {
   description: string;
   addedAt: string;
   clicks: number;
+  approved?: boolean;
 }
 
 export interface Translations {
@@ -42,7 +44,7 @@ export interface Translations {
   homeLink: string;
   viewLink: string;
   addLink: string;
-  promoLink: string;
+  trendingLink: string;
   aboutLink: string;
   officialLink: string;
   categories: Record<Category, string>;
@@ -65,27 +67,5 @@ export interface Translations {
   backBtn: string;
   clicksLabel: string;
   linkError: string;
-  safetyTitle: string;
-  safetyMessage: string;
-  closeBtn: string;
-  voicePrompt: string;
-  promoPageTitle: string;
-  promoPageSub: string;
-  promoContactHeader: string;
-  promoInstructions: string;
-  promoEmailLabel: string;
-  promoTemplateLabel: string;
-  promoTemplateContent: string;
-  aboutTitle: string;
-  aboutContent: string;
-  officialTitle: string;
-  officialSub: string;
-  promoNameLabel: string;
-  promoGmailLabel: string;
-  promoTypeLabel: string;
-  promoDetailsLabel: string;
-  promoSendBtn: string;
-  promoDirectBtn: string;
-  promoPolicyTitle: string;
   dir: 'ltr' | 'rtl';
 }

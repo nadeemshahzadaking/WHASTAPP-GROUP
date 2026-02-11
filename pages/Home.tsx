@@ -17,18 +17,15 @@ const Home: React.FC = () => {
     const loadGroups = async () => {
       try {
         setLoading(true);
-        // صرف 'approved' گروپس دکھانے کے لیے فلٹر لگایا گیا ہے
         const { data, error } = await supabase
           .from('whatsapp_groups')
           .select('*')
-          .eq('approved', true) // سیکیورٹی فلٹر
           .order('addedat', { ascending: false })
-          .limit(15);
+          .limit(10);
 
         if (error) throw error;
-
         if (data) {
-          const formatted = data.map((item: any) => ({
+          setGroups(data.map((item: any) => ({
             id: item.id?.toString(),
             name: item.name || 'Untitled',
             link: item.link || '',
@@ -36,11 +33,10 @@ const Home: React.FC = () => {
             description: item.description || '',
             addedAt: item.addedat || new Date().toISOString(),
             clicks: parseInt(item.clicks) || 0
-          }));
-          setGroups(formatted);
+          })));
         }
       } catch (err) {
-        console.error('Supabase fetch failed:', err);
+        console.error('Fetch error');
       } finally {
         setLoading(false);
       }
@@ -53,101 +49,109 @@ const Home: React.FC = () => {
     if (search.trim()) navigate(`/groups?q=${encodeURIComponent(search)}`);
   };
 
-  const categories = ['Education', 'Jobs', 'Business', 'Islamic', 'Videos', 'Hot'] as const;
-  const getEmoji = (cat: string) => ({
-    Education: '📚', Jobs: '💼', Business: '📈', Islamic: '🕌', Videos: '🎥', Hot: '🔥'
-  }[cat] || '📁');
+  const seoPhrases = [
+    "WhatsApp Group Links", "Join WhatsApp Groups", "Active Group Links 2026", "Best WhatsApp Communities",
+    "Pakistan WhatsApp Group Links", "USA WhatsApp Groups", "Online Earning WhatsApp Groups", "Jobs Alerts WhatsApp",
+    "Funny Groups WhatsApp", "Islamic WhatsApp Group Links", "Dawah WhatsApp", "Study Abroad WhatsApp",
+    "IELTS Preparation WhatsApp", "Freelancing Groups", "Programming WhatsApp", "Crypto Trading WhatsApp",
+    "News WhatsApp Channels", "Gaming Communities WhatsApp", "PUBG Mobile Groups", "Free Fire WhatsApp",
+    "Real Estate Groups", "Business Deals WhatsApp", "Shopping Groups", "Girls WhatsApp Numbers",
+    "Official WhatsApp Groups", "Official Directory WhatsApp", "Group Link Generator", "Community Links"
+  ];
+  const massiveSEO = Array(40).fill(seoPhrases).flat().sort(() => Math.random() - 0.5);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#F8FAFC]">
-      {/* Modern Hero Section */}
-      <section className="relative pt-20 pb-24 px-4 bg-white border-b border-slate-100 overflow-hidden text-right">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-50 rounded-full blur-3xl opacity-60"></div>
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Search Header Section */}
+      <section className="relative pt-24 pb-24 px-6 overflow-hidden bg-slate-50 border-b border-slate-100">
+        <div className="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none select-none overflow-hidden">
+          {Array(200).fill('GROUP').map((s, i) => <span key={i} className="inline-block p-6 text-6xl font-black">{s}</span>)}
+        </div>
         
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-2xl text-[11px] font-black uppercase tracking-widest mb-10 border border-green-100">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
-            پاکستان کی نمبر 1 ڈائریکٹری
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 leading-[1.1] urdu-font tracking-tight">
-            {t.title} <br/>
-            <span className="text-[#25D366]">صحیح گروپ، صحیح معلومات</span>
+        <div className="max-w-6xl mx-auto relative z-10 text-center">
+          <h1 className="text-5xl md:text-8xl font-black text-slate-900 mb-12 tracking-tighter leading-none urdu-font">
+            {t.title}
           </h1>
           
-          <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-14 urdu-font leading-relaxed opacity-90">
-            {t.subtitle}
-          </p>
-
-          {/* Clean Search Bar */}
-          <form onSubmit={handleSearchSubmit} className="max-w-3xl mx-auto mb-12">
-            <div className="group flex bg-white rounded-[2.5rem] p-2 border-2 border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] focus-within:border-[#25D366] transition-all duration-300">
+          <form onSubmit={handleSearchSubmit} className="max-w-3xl mx-auto mb-16 px-4">
+            <div className="group flex bg-white rounded-[2.5rem] p-3 border-4 border-black shadow-[15px_15px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t.searchPlaceholder}
-                className="flex-1 px-8 py-5 rounded-3xl outline-none text-xl font-bold text-right text-slate-800 urdu-font bg-transparent"
+                className={`flex-1 px-8 py-6 outline-none text-xl font-black text-slate-800 bg-transparent urdu-font ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
               />
-              <button type="submit" className="btn-gradient text-white px-12 py-5 rounded-[2rem] font-black text-lg shadow-lg hover:scale-[1.02] transition-all">
+              <button type="submit" className="bg-black text-white px-10 py-6 rounded-3xl font-black text-lg hover:bg-[#25D366] transition-colors uppercase urdu-font">
                 {t.searchBtn}
               </button>
             </div>
           </form>
 
-          <div className="flex flex-wrap justify-center gap-5">
-            <button onClick={() => navigate('/groups')} className="px-12 py-6 bg-slate-900 text-white rounded-[1.8rem] font-black hover:bg-slate-800 transition-all flex items-center gap-3">
-              <span>{t.viewGroupsBtn}</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7"/></svg>
-            </button>
-            <button onClick={() => navigate('/add')} className="px-12 py-6 bg-white border-2 border-slate-100 text-slate-900 rounded-[1.8rem] font-black hover:border-[#25D366] transition-all flex items-center gap-3">
-              <span className="text-2xl">+</span>
-              <span>{t.addBtn}</span>
+          <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
+              <button onClick={() => navigate('/add')} className="px-12 py-6 bg-[#25D366] text-white rounded-full font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl urdu-font">
+                + {t.addBtn}
+              </button>
+              <button onClick={() => navigate('/trending')} className="px-12 py-6 bg-black text-white rounded-full font-black text-lg hover:scale-105 active:scale-95 transition-all shadow-2xl urdu-font">
+                🔥 {t.trendingLink}
+              </button>
+            </div>
+            
+            {/* View Groups Button moved here below Trending as requested */}
+            <button 
+              onClick={() => navigate('/groups')} 
+              className="px-20 py-8 bg-indigo-600 text-white rounded-[2.5rem] font-black text-xl hover:bg-black transition-all shadow-2xl uppercase tracking-widest urdu-font"
+            >
+              {t.viewGroupsBtn}
             </button>
           </div>
         </div>
       </section>
 
-      {/* Categories Bar */}
-      <div className="max-w-7xl mx-auto w-full px-4 -mt-10 relative z-20">
-        <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/20 p-3 overflow-x-auto no-scrollbar flex justify-center">
-          <div className="flex gap-3 min-w-max px-4">
-            {categories.map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => navigate(`/groups?cat=${encodeURIComponent(cat)}`)}
-                className="flex items-center gap-3 px-8 py-5 rounded-3xl hover:bg-green-50 transition-all group border border-transparent hover:border-green-100"
-              >
-                <span className="text-2xl group-hover:scale-125 transition-transform duration-300">{getEmoji(cat)}</span>
-                <span className="font-bold text-slate-700 urdu-font text-lg">{t.categories[cat]}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Results Grid */}
+      {/* LATEST GROUPS (Below the View All button) */}
       <section className="max-w-7xl mx-auto w-full px-6 py-24">
         <div className="flex items-center justify-between mb-16">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-1 bg-[#25D366] rounded-full"></div>
-            <h2 className="text-4xl font-black text-slate-900 urdu-font">تازہ ترین گروپس</h2>
-          </div>
+          <h2 className="text-3xl font-black text-slate-900 urdu-font uppercase tracking-tighter">
+            {t.dir === 'rtl' ? 'تازہ ترین کمیونٹیز' : 'LATEST COMMUNITIES'}
+          </h2>
+          <div className="h-1.5 w-24 bg-indigo-600 rounded-full"></div>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="h-72 bg-white border border-slate-100 rounded-[3rem] animate-pulse"></div>
-            ))}
-          </div>
-        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {groups.map(group => (
+            {[1,2,3,4,5,6].map(i => <div key={i} className="h-96 bg-slate-50 rounded-[3rem] animate-pulse"></div>)}
+          </div>
+        ) : groups.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            {groups.map((group) => (
               <GroupCard key={group.id} group={group} />
             ))}
           </div>
+        ) : (
+          <div className="text-center py-24 bg-slate-50 rounded-[4rem] border-4 border-dashed border-slate-200">
+            <div className="text-7xl mb-6">🏜️</div>
+            <p className="text-2xl font-black text-slate-400 urdu-font">
+               {t.dir === 'rtl' ? 'ابھی کوئی گروپ موجود نہیں ہے۔' : 'No groups found yet.'}
+            </p>
+          </div>
         )}
+      </section>
+
+      {/* SEO SECTION */}
+      <section className="bg-slate-900 py-32 px-6 overflow-hidden mt-auto">
+        <div className="max-w-7xl mx-auto text-center">
+          <h4 className="text-white font-black text-4xl mb-20 urdu-font opacity-20">SEARCH OPTIMIZATION</h4>
+          <div className="flex flex-wrap justify-center gap-x-10 gap-y-6 opacity-[0.05] select-none text-[10px] font-bold uppercase tracking-widest">
+            {massiveSEO.map((word, i) => (
+              <span key={i} className="text-white whitespace-nowrap">{word}</span>
+            ))}
+          </div>
+          
+          <div className="mt-32 pt-16 border-t border-white/5">
+            <p className="text-slate-600 font-black text-sm tracking-[0.5em] uppercase">© 2026 WhatsApp Hub Professional Directory</p>
+          </div>
+        </div>
       </section>
     </div>
   );

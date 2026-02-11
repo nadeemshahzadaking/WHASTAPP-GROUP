@@ -1,31 +1,36 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 /**
  * 🛠️ UNIVERSAL SUPABASE CLIENT
  * ----------------------------
- * یہ فائل چیک کرتی ہے کہ کیا ہم Vite (Frontend) میں ہیں یا Node (Backend) میں۔
- * یہ آپ کی .env.local فائل سے ویلیوز اٹھائے گی۔
+ * Initializes the Supabase client using environment variables with hardcoded fallbacks
+ * to ensure the application remains functional even if environment injection fails.
  */
 
-// Vite کے لیے import.meta.env اور Node/Vercel کے لیے process.env استعمال ہوتا ہے
-const getEnv = (key: string) => {
-  if (typeof process !== 'undefined' && process.env && process.env[key]) {
-    return process.env[key];
-  }
-  // @ts-ignore
-  if (import.meta.env && import.meta.env[key]) {
+const getEnv = (key: string): string => {
+  try {
     // @ts-ignore
-    return import.meta.env[key];
-  }
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      const viteKey = key.startsWith('VITE_') ? key : `VITE_${key.replace('NEXT_PUBLIC_', '')}`;
+      // @ts-ignore
+      const value = import.meta.env[viteKey] || import.meta.env[key];
+      if (value) return value;
+    }
+  } catch (e) {}
+
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      const value = process.env[key] || process.env[`VITE_${key.replace('NEXT_PUBLIC_', '')}`];
+      if (value) return value;
+    }
+  } catch (e) {}
+
   return '';
 };
 
-const SUPABASE_URL = getEnv('NEXT_PUBLIC_SUPABASE_URL');
-const SUPABASE_ANON_KEY = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.warn('⚠️ Supabase Keys missing! Check your .env.local file or Vercel Environment Variables.');
-}
+// Hardcoded fallbacks from the project configuration
+const SUPABASE_URL = getEnv('NEXT_PUBLIC_SUPABASE_URL') || 'https://bczjcuykdlobvdbcawxz.supabase.co';
+const SUPABASE_ANON_KEY = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

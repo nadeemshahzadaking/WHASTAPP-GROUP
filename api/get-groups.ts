@@ -1,13 +1,11 @@
-
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-);
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://bczjcuykdlobvdbcawxz.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default async function handler(req: any, res: any) {
-  // تمام ضروری ہیڈرز ایک ہی بار سیٹ کریں
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -18,10 +16,6 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      return res.status(500).json({ error: 'Supabase keys are missing in environment variables.' });
-    }
-
     const { data, error } = await supabase
       .from('whatsapp_groups')
       .select('*')
@@ -39,7 +33,6 @@ export default async function handler(req: any, res: any) {
       clicks: parseInt(item.clicks) || 0
     }));
 
-    // ڈیٹا کو سٹرنگ بنا کر بھیجیں تاکہ کوئی ابہام نہ رہے
     return res.status(200).send(JSON.stringify(formatted));
   } catch (err: any) {
     console.error('Fetch Error:', err.message);

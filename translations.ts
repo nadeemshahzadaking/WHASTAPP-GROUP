@@ -1,38 +1,74 @@
 
 import { Language, Translations, Category } from './types';
 
-const CATEGORIES_KEYS: Category[] = [
-  'Education', 'Jobs', 'Business', 'Islamic', 'Entertainment',
-  'News', 'Sports', 'Tech', 'Health', 'Food',
-  'Movies', 'Poetry', 'Shopping', 'Real Estate', 'Trading',
-  'Freelancing', 'Programming', 'Gaming', 'Funny', 'Status',
-  'Quotes', 'Fashion', 'Travel', 'Automobiles', 'Agriculture',
-  'Science', 'History', 'Photography', 'Social Help', 'Other',
-  'Videos', 'Girls', 'Hot', 'Pro', 'Max',
-  'Online Earning', 'IT & Software', 'Web Development', 'Mobile Apps', 
-  'AI & Technology', 'Students', 'Scholarships', 'Exams & Preparation', 
-  'Government Jobs', 'Private Jobs', 'Overseas Jobs', 'Visa & Immigration', 
-  'Quran & Hadith', 'Islamic Education', 'Islamic Lectures', 'Dawah', 
-  'Women Only', 'Ladies Groups', 'Marriage & Rishta', 'Family', 'Parenting', 
-  'Fitness', 'Gym', 'Yoga', 'Medical', 'Doctors', 'Nurses', 
-  'Dramas', 'Music', 'Cricket', 'Football', 'PUBG', 'Free Fire', 
-  'E-commerce', 'Amazon', 'Daraz', 'Forex', 'Crypto', 'Property', 
-  'Cars', 'Bikes', 'Tourism', 'Recipes', 'Local Community', 'City Groups', 
-  'Breaking News', 'Memes', 'Study Abroad', 'IELTS', 'PTE', 
-  'Freelance Marketplace', 'Fiverr', 'Upwork', 'Graphic Design', 'Video Editing',
-  'Cyber Security', 'Digital Marketing', 'SEO Services', 'Stock Market',
-  'Poetry & Ghazals', 'Motivational', 'Art & Craft', 'Pets & Animals'
-];
+const categoriesEN: Record<Category, string> = {
+  Education: 'Education', Jobs: 'Jobs', Business: 'Business', Islamic: 'Islamic', 
+  Entertainment: 'Entertainment', News: 'News', Sports: 'Sports', Tech: 'Tech', 
+  Health: 'Health', Food: 'Food', Movies: 'Movies', Poetry: 'Poetry', 
+  Shopping: 'Shopping', 'Real Estate': 'Real Estate', Trading: 'Trading', 
+  Freelancing: 'Freelancing', Programming: 'Programming', Gaming: 'Gaming', 
+  Funny: 'Funny', Status: 'Status', Quotes: 'Quotes', Fashion: 'Fashion', 
+  Travel: 'Travel', Automobiles: 'Automobiles', Agriculture: 'Agriculture', 
+  Science: 'Science', History: 'History', Photography: 'Photography', 
+  'Social Help': 'Social Help', Other: 'Other', Videos: 'Videos', Girls: 'Girls', 
+  Hot: 'Hot', Pro: 'Pro', Max: 'Max', 'Online Earning': 'Online Earning', 
+  'IT & Software': 'IT & Software', 'Web Development': 'Web Development', 
+  'Mobile Apps': 'Mobile Apps', 'AI & Technology': 'AI & Technology', 
+  Students: 'Students', Scholarships: 'Scholarships', 'Exams & Preparation': 'Exams', 
+  'Government Jobs': 'Govt Jobs', 'Private Jobs': 'Private Jobs', 
+  'Overseas Jobs': 'Overseas', 'Visa & Immigration': 'Visa', 
+  'Quran & Hadith': 'Quran', 'Islamic Education': 'Islamic Edu', 
+  'Islamic Lectures': 'Lectures', Dawah: 'Dawah', 'Women Only': 'Women', 
+  'Ladies Groups': 'Ladies', 'Marriage & Rishta': 'Rishta', Family: 'Family', 
+  Parenting: 'Parenting', Fitness: 'Fitness', Gym: 'Gym', Yoga: 'Yoga', 
+  Medical: 'Medical', Doctors: 'Doctors', Nurses: 'Nurses', Dramas: 'Dramas', 
+  Music: 'Music', Cricket: 'Cricket', Football: 'Football', PUBG: 'PUBG', 
+  'Free Fire': 'Free Fire', 'E-commerce': 'E-commerce', Amazon: 'Amazon', 
+  Daraz: 'Daraz', Forex: 'Forex', Crypto: 'Crypto', Property: 'Property', 
+  Cars: 'Cars', Bikes: 'Bikes', Tourism: 'Tourism', Recipes: 'Recipes', 
+  'Local Community': 'Local', 'City Groups': 'City', 'Breaking News': 'Breaking', 
+  Memes: 'Memes', 'Study Abroad': 'Abroad', IELTS: 'IELTS', PTE: 'PTE', 
+  'Freelance Marketplace': 'Market', Fiverr: 'Fiverr', Upwork: 'Upwork', 
+  'Graphic Design': 'Design', 'Video Editing': 'Video Edit', 
+  'Cyber Security': 'Cyber', 'Digital Marketing': 'Marketing', 
+  'SEO Services': 'SEO', 'Stock Market': 'Stock', 'Poetry & Ghazals': 'Poetry', 
+  Motivational: 'Motivation', 'Art & Craft': 'Art', 'Pets & Animals': 'Pets'
+};
 
-const categoriesEN: any = {};
-const categoriesUR: any = {};
-const categoriesRO: any = {};
-
-CATEGORIES_KEYS.forEach(k => {
-  categoriesEN[k] = k;
-  categoriesUR[k] = k; // Can be manually mapped to Urdu if needed
-  categoriesRO[k] = k;
-});
+const categoriesUR: Record<Category, string> = {
+  Education: 'تعلیم', Jobs: 'ملازمت', Business: 'کاروبار', Islamic: 'اسلامک', 
+  Entertainment: 'تفریح', News: 'خبریں', Sports: 'کھیل', Tech: 'ٹیکنالوجی', 
+  Health: 'صحت', Food: 'کھانے پینے', Movies: 'فلمیں', Poetry: 'شاعری', 
+  Shopping: 'شاپنگ', 'Real Estate': 'پراپرٹی', Trading: 'ٹریڈنگ', 
+  Freelancing: 'فری لانسنگ', Programming: 'پروگرامنگ', Gaming: 'گیمنگ', 
+  Funny: 'لطیفے', Status: 'اسٹیٹس', Quotes: 'اقوال', Fashion: 'فیشن', 
+  Travel: 'سفر و سیاحت', Automobiles: 'گاڑیاں', Agriculture: 'زراعت', 
+  Science: 'سائنس', History: 'تاریخ', Photography: 'فوٹوگرافی', 
+  'Social Help': 'سوشل ورک', Other: 'دیگر', Videos: 'ویڈیوز', Girls: 'خواتین', 
+  Hot: 'ہاٹ', Pro: 'پرو', Max: 'میکس', 'Online Earning': 'آن لائن کمائی', 
+  'IT & Software': 'آئی ٹی', 'Web Development': 'ویب سائٹ', 
+  'Mobile Apps': 'موبائل ایپس', 'AI & Technology': 'مصنوعی ذہانت', 
+  Students: 'طلبا', Scholarships: 'اسکالرشپ', 'Exams & Preparation': 'امتحانات', 
+  'Government Jobs': 'سرکاری نوکری', 'Private Jobs': 'پرائیویٹ نوکری', 
+  'Overseas Jobs': 'بیرون ملک نوکری', 'Visa & Immigration': 'ویزہ', 
+  'Quran & Hadith': 'قرآن و حدیث', 'Islamic Education': 'اسلامی تعلیم', 
+  'Islamic Lectures': 'بیانات', Dawah: 'دعوت', 'Women Only': 'صرف خواتین', 
+  'Ladies Groups': 'لیڈیز گروپس', 'Marriage & Rishta': 'رشتہ گروپس', Family: 'فیملی', 
+  Parenting: 'والدین', Fitness: 'فٹنس', Gym: 'جم', Yoga: 'یوگا', 
+  Medical: 'میڈیکل', Doctors: 'ڈاکٹرز', Nurses: 'نرسز', Dramas: 'ڈرامے', 
+  Music: 'میوزک', Cricket: 'کرکٹ', Football: 'فٹبال', PUBG: 'پب جی', 
+  'Free Fire': 'فری فائر', 'E-commerce': 'ای کامرس', Amazon: 'ایمیزون', 
+  Daraz: 'دراز', Forex: 'فاریکس', Crypto: 'کرپٹو', Property: 'پراپرٹی', 
+  Cars: 'گاڑیاں', Bikes: 'بائیکس', Tourism: 'سیاحت', Recipes: 'کھانوں کی ترکیب', 
+  'Local Community': 'مقامی کمیونٹی', 'City Groups': 'شہری گروپس', 
+  'Breaking News': 'بریکنگ نیوز', Memes: 'میمز', 'Study Abroad': 'بیرون ملک تعلیم', 
+  IELTS: 'آئی لیٹس', PTE: 'پی ٹی ای', 
+  'Freelance Marketplace': 'مارکیٹ پلیس', Fiverr: 'فائور', Upwork: 'اپ ورک', 
+  'Graphic Design': 'گرافک ڈیزائن', 'Video Editing': 'ویڈیو ایڈیٹنگ', 
+  'Cyber Security': 'سائبر سیکیورٹی', 'Digital Marketing': 'ڈیجیٹل مارکیٹنگ', 
+  'SEO Services': 'ایس ای او', 'Stock Market': 'اسٹاک مارکیٹ', 'Poetry & Ghazals': 'اردو شاعری', 
+  Motivational: 'موٹیویشنل', 'Art & Craft': 'آرٹ', 'Pets & Animals': 'پرندے و جانور'
+};
 
 export const TRANSLATIONS: Record<Language, Translations> = {
   en: {
@@ -180,7 +216,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     aboutContent: 'Welcome to WhatsApp group directory. Hum log logon ko safely connect karte hain.',
     officialTitle: 'Official Channels',
     officialSub: 'Hamare official social media handles se connect karein.',
-    categories: categoriesRO,
+    categories: categoriesEN, // Fallback to EN for RO
     allCategories: 'All Categories',
     groupsListTitle: 'Explore Groups',
     groupsFound: 'groups milay',

@@ -1,14 +1,14 @@
 
-// Add 'ro' to supported languages
 export type Language = 'en' | 'ur' | 'ro';
 export type Category = 
+  | 'Pakistani' | 'India' | 'Hot Girls' | 'Videos' | 'Horror Movies'
   | 'Education' | 'Jobs' | 'Business' | 'Islamic' | 'Entertainment' 
   | 'News' | 'Sports' | 'Tech' | 'Health' | 'Food' 
   | 'Movies' | 'Poetry' | 'Shopping' | 'Real Estate' | 'Trading' 
   | 'Freelancing' | 'Programming' | 'Gaming' | 'Funny' | 'Status' 
   | 'Quotes' | 'Fashion' | 'Travel' | 'Automobiles' | 'Agriculture' 
   | 'Science' | 'History' | 'Photography' | 'Social Help' | 'Other'
-  | 'Videos' | 'Girls' | 'Hot' | 'Pro' | 'Max'
+  | 'Pro' | 'Max'
   | 'Online Earning' | 'IT & Software' | 'Web Development' | 'Mobile Apps' 
   | 'AI & Technology' | 'Students' | 'Scholarships' | 'Exams & Preparation' 
   | 'Government Jobs' | 'Private Jobs' | 'Overseas Jobs' | 'Visa & Immigration' 

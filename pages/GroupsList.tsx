@@ -5,7 +5,7 @@ import GroupCard from '../components/GroupCard';
 import BackButton from '../components/BackButton';
 import { CATEGORIES } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
-import { WhatsAppGroup } from '../types';
+import { WhatsAppGroup, Category } from '../types';
 import { supabase } from '../utils/supabase';
 
 const GroupsList: React.FC = () => {
@@ -19,6 +19,7 @@ const GroupsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState(query);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -65,49 +66,63 @@ const GroupsList: React.FC = () => {
     });
   }, [searchTerm, catFilter, groups]);
 
+  // Handle category change
+  const handleCatChange = (val: string) => {
+    setSearchParams({ q: searchTerm, cat: val });
+  };
+
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-10 ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}>
       <BackButton />
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 mb-2 urdu-font">{t.groupsListTitle}</h1>
-          <p className="text-slate-500 font-bold">{filteredGroups.length} {t.groupsFound}</p>
+      
+      <div className="mb-12">
+        {/* Selected Category Heading */}
+        <div className="mb-8 text-center bg-slate-900 text-white p-6 rounded-2xl md:rounded-3xl shadow-lg animate-in fade-in slide-in-from-top-4">
+          <h1 className="text-3xl md:text-4xl font-black urdu-font uppercase">
+            {catFilter === 'All' ? t.allCategories : t.categories[catFilter as Category]}
+          </h1>
+          <p className="text-sm font-bold text-white/50 mt-1">{filteredGroups.length} {t.groupsFound}</p>
         </div>
 
-        <div className={`flex flex-col sm:flex-row flex-wrap gap-3 w-full ${t.dir === 'rtl' ? 'justify-end' : 'justify-start'}`}>
-          <select
-            value={catFilter}
-            onChange={(e) => setSearchParams({ q: searchTerm, cat: e.target.value })}
-            className={`px-4 py-3 rounded-2xl border-2 border-slate-100 outline-none bg-white font-bold ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
-          >
-            <option value="All">{t.allCategories}</option>
-            {CATEGORIES.map(cat => <option key={cat} value={cat}>{t.categories[cat]}</option>)}
-          </select>
-          <input
-            type="text"
-            placeholder={t.searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className={`px-6 py-3 rounded-2xl border-2 border-slate-100 outline-none min-w-[300px] font-black urdu-font ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
-          />
+        <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+          <div className="flex flex-wrap justify-center gap-2 w-full lg:w-auto">
+             <select
+              value={catFilter}
+              onChange={(e) => handleCatChange(e.target.value)}
+              className={`px-4 py-3 rounded-xl border-2 border-slate-100 outline-none bg-white font-bold text-sm min-w-[200px] urdu-font ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
+            >
+              <option value="All">{t.allCategories}</option>
+              {CATEGORIES.map(cat => <option key={cat} value={cat}>{t.categories[cat]}</option>)}
+            </select>
+          </div>
+
+          <div className="relative w-full max-w-md">
+            <input
+              type="text"
+              placeholder={t.searchPlaceholder}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full px-5 py-3 rounded-xl border-2 border-slate-100 outline-none font-bold text-sm urdu-font shadow-sm focus:border-black transition-all ${t.dir === 'rtl' ? 'text-right' : 'text-left'}`}
+            />
+          </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="h-64 bg-slate-50 rounded-[3rem] animate-pulse"></div>)}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[1,2,3,4,5,6,7,8].map(i => <div key={i} className="h-48 bg-slate-50 rounded-2xl animate-pulse"></div>)}
         </div>
       ) : filteredGroups.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {filteredGroups.map(group => (
             <GroupCard key={group.id} group={group} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-32 bg-white rounded-[4rem] border-4 border-dashed border-slate-50">
-          <div className="text-7xl mb-6">🔍</div>
-          <h3 className="text-3xl font-black text-slate-800 mb-2 urdu-font">{t.noGroups}</h3>
-          <p className="text-slate-400 font-bold">{t.noGroupsSub}</p>
+        <div className="text-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-100">
+          <div className="text-5xl mb-4">🔍</div>
+          <h3 className="text-xl font-black text-slate-800 mb-1 urdu-font">{t.noGroups}</h3>
+          <p className="text-slate-400 font-bold text-sm">{t.noGroupsSub}</p>
         </div>
       )}
     </div>

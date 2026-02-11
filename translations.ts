@@ -2,6 +2,7 @@
 import { Language, Translations, Category } from './types';
 
 const categoriesEN: Record<Category, string> = {
+  Pakistani: 'Pakistani', India: 'India', 'Hot Girls': 'Hot Girls', Videos: 'Videos', 'Horror Movies': 'Horror Clips',
   Education: 'Education', Jobs: 'Jobs', Business: 'Business', Islamic: 'Religious', 
   Entertainment: 'Entertainment', News: 'News', Sports: 'Sports', Tech: 'Technology', 
   Health: 'Health', Food: 'Food', Movies: 'Movies', Poetry: 'Poetry', 
@@ -10,8 +11,8 @@ const categoriesEN: Record<Category, string> = {
   Funny: 'Humor', Status: 'Status', Quotes: 'Quotes', Fashion: 'Fashion', 
   Travel: 'Travel', Automobiles: 'Vehicles', Agriculture: 'Agriculture', 
   Science: 'Science', History: 'History', Photography: 'Photography', 
-  'Social Help': 'Help', Other: 'Others', Videos: 'Videos', Girls: 'Women', 
-  Hot: 'Trending', Pro: 'Professional', Max: 'Maximum', 'Online Earning': 'Earning', 
+  'Social Help': 'Help', Other: 'Others',
+  Pro: 'Professional', Max: 'Maximum', 'Online Earning': 'Earning', 
   'IT & Software': 'IT', 'Web Development': 'Web Dev', 
   'Mobile Apps': 'Apps', 'AI & Technology': 'AI', 
   Students: 'Students', Scholarships: 'Scholarships', 'Exams & Preparation': 'Exams', 
@@ -36,6 +37,7 @@ const categoriesEN: Record<Category, string> = {
 };
 
 const categoriesUR: Record<Category, string> = {
+  Pakistani: 'پاکستانی', India: 'انڈیا', 'Hot Girls': 'ہاٹ گرلز', Videos: 'ویڈیو', 'Horror Movies': 'ہارر موویز کلپ',
   Education: 'تعلیم', Jobs: 'ملازمت', Business: 'کاروبار', Islamic: 'اسلامک', 
   Entertainment: 'تفریح', News: 'خبریں', Sports: 'کھیل', Tech: 'ٹیکنالوجی', 
   Health: 'صحت', Food: 'کھانے پینے', Movies: 'فلمیں', Poetry: 'شاعری', 
@@ -44,8 +46,8 @@ const categoriesUR: Record<Category, string> = {
   Funny: 'لطیفے', Status: 'اسٹیٹس', Quotes: 'اقوال', Fashion: 'فیشن', 
   Travel: 'سفر و سیاحت', Automobiles: 'گاڑیاں', Agriculture: 'زراعت', 
   Science: 'سائنس', History: 'تاریخ', Photography: 'فوٹوگرافی', 
-  'Social Help': 'سوشل ورک', Other: 'دیگر', Videos: 'ویڈیوز', Girls: 'خواتین', 
-  Hot: 'ہاٹ', Pro: 'پرو', Max: 'میکس', 'Online Earning': 'آن لائن کمائی', 
+  'Social Help': 'سوشل ورک', Other: 'دیگر',
+  Pro: 'پرو', Max: 'میکس', 'Online Earning': 'آن لائن کمائی', 
   'IT & Software': 'آئی ٹی', 'Web Development': 'ویب سائٹ', 
   'Mobile Apps': 'موبائل ایپس', 'AI & Technology': 'مصنوعی ذہانت', 
   Students: 'طلبا', Scholarships: 'اسکالرشپ', 'Exams & Preparation': 'امتحانات', 

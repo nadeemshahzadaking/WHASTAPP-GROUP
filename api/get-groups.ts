@@ -1,7 +1,8 @@
+
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://bczjcuykdlobvdbcawxz.supabase.co';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'AeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k';
+const SUPABASE_URL = 'https://bczjcuykdlobvdbcawxz.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjempjdXlrZGxvYnZkYmNhd3h6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTk2NTUsImV4cCI6MjA4NjI3NTY1NX0.bv-F1JKK0U6TaPM1_qnBv4qeNjkdoN-YuIB69reie1k';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -30,12 +31,13 @@ export default async function handler(req: any, res: any) {
       category: item.category || 'Other',
       description: item.description || '',
       addedAt: item.addedat || new Date().toISOString(),
-      clicks: parseInt(item.clicks) || 0
+      clicks: parseInt(item.clicks) || 0,
+      image_url: item.image_url || '',
+      custom_color: item.custom_color || ''
     }));
 
     return res.status(200).send(JSON.stringify(formatted));
   } catch (err: any) {
-    console.error('Fetch Error:', err.message);
     return res.status(500).send(JSON.stringify({ error: 'Database connection failed', details: err.message }));
   }
 }

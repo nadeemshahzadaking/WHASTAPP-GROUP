@@ -32,6 +32,39 @@ const AddGroup: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Helper function to compress image
+  const compressImage = (base64: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 600; // Smaller width for better performance
+        const MAX_HEIGHT = 600;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        // Compress to 0.5 quality to ensure it stays small for database storage
+        resolve(canvas.toDataURL('image/jpeg', 0.5));
+      };
+    });
+  };
+
   const checkDuplicateLink = async (link: string) => {
     const cleanLink = link.trim();
     if (!cleanLink || !cleanLink.includes('whatsapp.com')) return;
@@ -46,7 +79,6 @@ const AddGroup: React.FC = () => {
         .maybeSingle();
       
       if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
-      
       if (data) {
         setLinkError(language === 'ur' ? 'یہ لنک پہلے سے ہمارے پاس موجود ہے!' : 'This link already exists!');
       }
@@ -86,13 +118,10 @@ const AddGroup: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1 * 1024 * 1024) {
-        setError(language === 'ur' ? 'تصویر 1MB سے کم ہونی چاہیے۔' : 'Image must be under 1MB.');
-        return;
-      }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image_url: reader.result as string }));
+      reader.onloadend = async () => {
+        const compressed = await compressImage(reader.result as string);
+        setFormData(prev => ({ ...prev, image_url: compressed }));
       };
       reader.readAsDataURL(file);
     }
@@ -114,24 +143,12 @@ const AddGroup: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Step 1: Check existence again to be safe
-      const { data: existing, error: existError } = await supabase
-        .from('whatsapp_groups')
-        .select('id')
-        .eq('link', formData.link.trim())
-        .maybeSingle();
+      const cleanLink = formData.link.trim();
       
-      if (existError && existError.code !== 'PGRST116') throw existError;
-      if (existing) {
-        setError(language === 'ur' ? 'یہ لنک پہلے سے موجود ہے۔' : 'Link already exists.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Step 2: Prepare final data
+      // Step 1: Prepare data
       const insertData = {
         name: formData.name.trim(),
-        link: formData.link.trim(),
+        link: cleanLink,
         category: formData.category,
         description: formData.description.trim(),
         addedat: new Date().toISOString(),
@@ -141,27 +158,28 @@ const AddGroup: React.FC = () => {
         image_url: formData.image_url || null
       };
 
-      // Step 3: Direct insertion
+      // Step 2: Direct insertion
       const { error: insertError } = await supabase
         .from('whatsapp_groups')
         .insert([insertData]);
       
       if (insertError) {
-        console.error("Supabase Insert Error:", insertError);
-        // Specialized error message for missing columns
-        if (insertError.message.includes('column') || insertError.code === '42703') {
-          setError(language === 'ur' ? 'ڈیٹا بیس ایرر: کالم غائب ہے۔ ایڈمن سے رابطہ کریں۔' : 'Database Error: Missing columns.');
+        console.error("Supabase error:", insertError);
+        if (insertError.code === '42703') {
+          setError(language === 'ur' ? 'ڈیٹا بیس ایرر: کالم غائب ہے۔ ایڈمن کالمز چیک کرے۔' : 'Database Error: Missing columns.');
+        } else if (insertError.message.includes('Failed to fetch')) {
+          setError(language === 'ur' ? 'نیٹ ورک کا مسئلہ: براہ کرم انٹرنیٹ چیک کریں یا دوبارہ کوشش کریں۔' : 'Network Error: Please check internet and try again.');
         } else {
-          setError(language === 'ur' ? `سسٹم ایرر: ${insertError.message}` : `System Error: ${insertError.message}`);
+          setError(language === 'ur' ? `ایرر: ${insertError.message}` : `Error: ${insertError.message}`);
         }
         setIsSubmitting(false);
         return;
       }
       
       setShowSuccess(true);
-    } catch (error: any) {
-      console.error("Connection Error:", error);
-      setError(language === 'ur' ? 'سسٹم سے رابطہ نہیں ہو سکا۔ انٹرنیٹ یا سپربیس چیک کریں۔' : 'Connection failed. Check your internet.');
+    } catch (err: any) {
+      console.error("Catch block:", err);
+      setError(language === 'ur' ? 'سسٹم سے رابطہ نہیں ہو سکا: ' + err.message : 'Connection failed: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -200,7 +218,7 @@ const AddGroup: React.FC = () => {
       <BackButton />
       <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-100">
         
-        {/* Secret Trigger Header */}
+        {/* Secret Trigger Header - 5s long press for image upload */}
         <div 
           onMouseDown={startPress} 
           onMouseUp={endPress} 
@@ -227,8 +245,8 @@ const AddGroup: React.FC = () => {
             </div>
           )}
 
-          {/* Hidden File Input */}
-          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+          {/* Hidden File Input - No camera access requested */}
+          <input type="file" ref={fileInputRef} className="hidden" accept="image/png, image/jpeg" onChange={handleFileChange} />
 
           <div className="space-y-3">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{t.groupName} *</label>
@@ -238,12 +256,12 @@ const AddGroup: React.FC = () => {
             </div>
           </div>
 
-          {/* Image Preview - Only shows after successful secret selection */}
+          {/* Image Preview - Only after secret selection */}
           {formData.image_url && (
             <div className="relative w-full h-44 rounded-[2.5rem] overflow-hidden border-4 border-slate-50 group shadow-2xl">
               <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
               <button type="button" onClick={() => setFormData({...formData, image_url: ''})} className="absolute top-4 right-4 bg-red-500 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-xl">✕</button>
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md text-white text-[8px] font-black uppercase px-3 py-1 rounded-full border border-white/10">Image Selected</div>
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/40 backdrop-blur-md text-white text-[8px] font-black uppercase px-3 py-1 rounded-full border border-white/10">Image Ready</div>
             </div>
           )}
 
@@ -257,7 +275,7 @@ const AddGroup: React.FC = () => {
                 className={`w-full px-5 py-4 rounded-2xl border-2 outline-none font-bold text-base text-left transition-all ${linkError ? 'border-red-500 bg-red-50' : 'border-slate-100 focus:border-slate-900 shadow-sm'}`} 
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                {checkingLink && <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>}
+                {checkingLink && <div className="w-4 h-4 border-2 border-[#25D366] border-t-transparent rounded-full animate-spin"></div>}
                 <button type="button" onClick={() => handlePaste('link')} className="bg-slate-900 text-white font-black text-[9px] uppercase px-3 py-1.5 rounded-lg shadow-md">Paste</button>
               </div>
             </div>

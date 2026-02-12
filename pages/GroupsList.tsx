@@ -38,7 +38,9 @@ const GroupsList: React.FC = () => {
             category: item.category || 'Other',
             description: item.description || '',
             addedAt: item.addedat || new Date().toISOString(),
-            clicks: parseInt(item.clicks) || 0
+            clicks: parseInt(item.clicks) || 0,
+            image_url: item.image_url || '',
+            custom_color: item.custom_color || ''
           }));
           setGroups(formatted);
         }

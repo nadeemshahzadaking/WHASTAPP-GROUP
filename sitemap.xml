@@ -18,35 +18,22 @@
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  <!-- Main Categories -->
   <url>
-    <loc>https://whastapp-group.vercel.app/#/groups?cat=Pakistani</loc>
+    <loc>https://whastapp-group.vercel.app/#/add</loc>
     <lastmod>2026-02-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://whastapp-group.vercel.app/#/groups?cat=Jobs</loc>
-    <lastmod>2026-02-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://whastapp-group.vercel.app/#/groups?cat=Education</loc>
-    <lastmod>2026-02-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://whastapp-group.vercel.app/#/groups?cat=Islamic</loc>
-    <lastmod>2026-02-12</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://whastapp-group.vercel.app/#/official</loc>
     <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
+  </url>
+  <url>
+    <loc>https://whastapp-group.vercel.app/#/about</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

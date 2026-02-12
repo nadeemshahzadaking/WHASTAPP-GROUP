@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
 Sitemap: https://whastapp-group.vercel.app/sitemap.xml

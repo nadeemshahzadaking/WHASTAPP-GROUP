@@ -45,7 +45,7 @@ const AddGroup: React.FC = () => {
         .eq('link', cleanLink)
         .maybeSingle();
       
-      if (fetchError) throw fetchError;
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
       
       if (data) {
         setLinkError(language === 'ur' ? 'یہ لنک پہلے سے ہمارے پاس موجود ہے!' : 'This link already exists!');
@@ -107,13 +107,14 @@ const AddGroup: React.FC = () => {
       return;
     }
 
-    if (!formData.name.trim() || !formData.category) {
-      setError(language === 'ur' ? 'نام اور کیٹیگری لازمی ہے۔' : 'Name and Category required!');
+    if (!formData.name.trim() || !formData.category || !formData.link.trim()) {
+      setError(language === 'ur' ? 'نام، لنک اور کیٹیگری لازمی ہے۔' : 'Name, Link and Category required!');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      // Step 1: Check existence again to be safe
       const { data: existing, error: existError } = await supabase
         .from('whatsapp_groups')
         .select('id')
@@ -127,7 +128,8 @@ const AddGroup: React.FC = () => {
         return;
       }
 
-      const { error: insertError } = await supabase.from('whatsapp_groups').insert([{
+      // Step 2: Prepare final data
+      const insertData = {
         name: formData.name.trim(),
         link: formData.link.trim(),
         category: formData.category,
@@ -137,21 +139,29 @@ const AddGroup: React.FC = () => {
         approved: true,
         custom_color: formData.custom_color,
         image_url: formData.image_url || null
-      }]);
+      };
+
+      // Step 3: Direct insertion
+      const { error: insertError } = await supabase
+        .from('whatsapp_groups')
+        .insert([insertData]);
       
       if (insertError) {
-        if (insertError.message.includes('image_url')) {
-          setError(language === 'ur' ? 'ڈیٹا بیس ایرر: تصویر محفوظ کرنے کا کالم غائب ہے۔' : 'Database Error: image_url column missing.');
-          setIsSubmitting(false);
-          return;
+        console.error("Supabase Insert Error:", insertError);
+        // Specialized error message for missing columns
+        if (insertError.message.includes('column') || insertError.code === '42703') {
+          setError(language === 'ur' ? 'ڈیٹا بیس ایرر: کالم غائب ہے۔ ایڈمن سے رابطہ کریں۔' : 'Database Error: Missing columns.');
+        } else {
+          setError(language === 'ur' ? `سسٹم ایرر: ${insertError.message}` : `System Error: ${insertError.message}`);
         }
-        throw insertError;
+        setIsSubmitting(false);
+        return;
       }
       
       setShowSuccess(true);
     } catch (error: any) {
-      console.error(error);
-      setError(language === 'ur' ? 'سسٹم سے رابطہ نہیں ہو سکا۔ انٹرنیٹ چیک کریں۔' : 'Connection failed. Check your internet.');
+      console.error("Connection Error:", error);
+      setError(language === 'ur' ? 'سسٹم سے رابطہ نہیں ہو سکا۔ انٹرنیٹ یا سپربیس چیک کریں۔' : 'Connection failed. Check your internet.');
     } finally {
       setIsSubmitting(false);
     }
@@ -276,7 +286,7 @@ const AddGroup: React.FC = () => {
             <textarea rows={3} value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 focus:border-slate-900 outline-none resize-none font-bold text-base urdu-font shadow-sm" />
           </div>
 
-          <button type="submit" disabled={isSubmitting || !!linkError} className="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-xl hover:bg-slate-900 transition-all active:scale-95 disabled:opacity-50 shadow-2xl shadow-green-100 uppercase tracking-widest">
+          <button type="submit" disabled={isSubmitting || !!linkError} className="w-full bg-[#25D366] text-white py-5 rounded-2xl font-black text-xl hover:bg-black transition-all active:scale-95 disabled:opacity-50 shadow-2xl shadow-green-100 uppercase tracking-widest">
             {isSubmitting ? 'پروسیسنگ ہو رہی ہے...' : t.submitBtn}
           </button>
         </form>

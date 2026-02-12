@@ -53,7 +53,7 @@ const GroupDetails: React.FC = () => {
   const handleJoin = async () => {
     if (!group) return;
     try {
-      await supabase.rpc('increment_clicks', { row_id: group.id });
+      await supabase.from('whatsapp_groups').update({ clicks: (group.clicks || 0) + 1 }).eq('id', group.id);
     } catch (e) {}
     window.open(group.link, '_blank', 'noopener,noreferrer');
   };
@@ -97,7 +97,7 @@ const GroupDetails: React.FC = () => {
             📤
           </button>
 
-          <div className="w-32 h-32 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-2xl border-4 border-white/30 overflow-hidden">
+          <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center text-5xl mx-auto mb-8 shadow-2xl border-4 border-white/30 overflow-hidden">
             {group.image_url ? (
               <img src={group.image_url} alt={group.name} className="w-full h-full object-cover" />
             ) : '💬'}
@@ -109,7 +109,7 @@ const GroupDetails: React.FC = () => {
           </div>
         </div>
 
-        {/* Large Display Image Section - Main request fulfilled */}
+        {/* LARGE DISPLAY IMAGE */}
         {group.image_url && (
           <div className="px-8 md:px-16 pt-12">
             <div className="w-full rounded-[3rem] overflow-hidden shadow-2xl border-8 border-slate-50 bg-slate-50">
@@ -119,6 +119,7 @@ const GroupDetails: React.FC = () => {
                 className="w-full h-auto max-h-[600px] object-contain mx-auto" 
                />
             </div>
+            <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-widest mt-4">Verified Community Media</p>
           </div>
         )}
 
@@ -132,13 +133,13 @@ const GroupDetails: React.FC = () => {
 
           <div className="pt-12 border-t border-slate-50 space-y-8">
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-slate-50 p-6 rounded-3xl">
-                  <span className="block text-[10px] font-black text-slate-400 uppercase mb-2">Platform</span>
-                  <span className="font-black text-slate-900">WhatsApp Messenger</span>
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <span className="block text-[10px] font-black text-slate-400 uppercase mb-2">Verified Link</span>
+                  <span className="font-black text-slate-900 truncate block">{group.link}</span>
                 </div>
-                <div className="bg-slate-50 p-6 rounded-3xl">
-                  <span className="block text-[10px] font-black text-slate-400 uppercase mb-2">Category</span>
-                  <span className="font-black text-slate-900">{t.categories[group.category]}</span>
+                <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                  <span className="block text-[10px] font-black text-slate-400 uppercase mb-2">Safe Community</span>
+                  <span className="font-black text-slate-900">End-to-End Encrypted</span>
                 </div>
              </div>
 
